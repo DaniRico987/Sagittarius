@@ -25,6 +25,11 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
+  // Buscar un usuario por email
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
   // Actualizar un usuario
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
     return this.userModel
