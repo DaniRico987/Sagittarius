@@ -8,23 +8,34 @@ import { CreateMessageDto } from './dto/create-message.dto';
 export class MessagesService {
   constructor(@InjectModel('Message') private messageModel: Model<Message>) {}
 
-  // Crear un mensaje
-  async create(createMessageDto: CreateMessageDto): Promise<Message> {
-    const createdMessage = new this.messageModel(createMessageDto);
+  async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
+    const createdMessage = new this.messageModel({
+      ...createMessageDto,
+      timestamp: new Date(),
+    });
     return createdMessage.save();
   }
 
-  // Obtener todos los mensajes
   async findAll(): Promise<Message[]> {
     return this.messageModel.find().exec();
   }
 
-  // Obtener un mensaje por ID
   async findOne(id: string): Promise<Message | null> {
     return this.messageModel.findById(id).exec();
   }
 
-  // Eliminar un mensaje
+  async findConversation(user1Id: string, user2Id: string): Promise<Message[]> {
+    return this.messageModel
+      .find({
+        $or: [
+          { sender_id: user1Id, receiver_id: user2Id },
+          { sender_id: user2Id, receiver_id: user1Id },
+        ],
+      })
+      .sort({ timestamp: 1 })
+      .exec();
+  }
+
   async remove(id: string): Promise<Message | null> {
     return this.messageModel.findByIdAndDelete(id).exec();
   }
