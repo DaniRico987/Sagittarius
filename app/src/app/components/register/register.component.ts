@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { responseRegister } from '../../interface/user-register-interface';
@@ -14,12 +14,15 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   registerForm!: FormGroup;
+  formBuilder: FormBuilder;
 
   constructor(
     public loginService: LoginService,
-    public formBuilder: FormBuilder,
+    @Inject(FormBuilder) formBuilder: FormBuilder,
     public router: Router
-  ) {}
+  ) {
+    this.formBuilder = formBuilder;
+  }
 
   ngOnInit(): void {
     if (this.loginService.getTokenValidation()) {

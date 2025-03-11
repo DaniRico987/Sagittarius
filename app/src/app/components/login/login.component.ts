@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { LoginService } from '../../service/login.service';
+import { Component, Inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { LoginService } from '../../service/login.service';
 
 @Component({
   selector: 'app-login',
@@ -11,14 +11,17 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  formBuilder: FormBuilder;
 
   constructor(
     public loginService: LoginService,
-    public formBuilder: FormBuilder,
+    @Inject(FormBuilder) formBuilder: FormBuilder,
     public router: Router
-  ) {}
+  ) {
+    this.formBuilder = formBuilder;
+  }
 
   ngOnInit(): void {
     if (this.loginService.getTokenValidation()) {
