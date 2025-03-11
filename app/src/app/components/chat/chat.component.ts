@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SocketService } from '../../service/socket.service';
 import { LoginService } from '../../service/login.service';
 import { Router } from '@angular/router';
+import { MaterialModule } from '../../shared/material/material.module';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, MaterialModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
 })

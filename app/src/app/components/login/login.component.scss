@@ -1,0 +1,34 @@
+/* login.component.scss */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+mat-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.form-group {
+  margin: 16px;
+}
+
+.form-group-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: wrap column;
+  margin: 16px;
+
+  a {
+    margin-bottom: 20px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}

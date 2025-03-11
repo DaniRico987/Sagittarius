@@ -7,6 +7,6 @@ import { provideHttpClient } from '@angular/common/http'; // Importamos provideH
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),          // Configuración de rutas
-    provideHttpClient()             // Añadimos provideHttpClient para configurar HttpClient
+    provideHttpClient()       // Añadimos provideHttpClient para configurar HttpClient
   ]
 }).catch(err => console.error(err));

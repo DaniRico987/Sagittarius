@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { responseRegister } from '../../interface/user-register-interface';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { MaterialModule } from '../../shared/material/material.module';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MaterialModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
 })
