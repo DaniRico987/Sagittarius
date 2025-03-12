@@ -13,11 +13,17 @@ import { Observable } from 'rxjs';
 })
 export class LoginService {
   token: string = '';
+  endPoint = 'https://pkbvmxnl-3000.use2.devtunnels.ms/auth';
+  // endPoint = 'http://localhost:3000/auth';
 
   constructor(private http: HttpClient, private router: Router) {}
 
   setToken(token: string) {
     this.token = token;
+  }
+
+  getEndpoint() {
+    return this.endPoint;
   }
 
   getTokenValidation() {
@@ -26,14 +32,14 @@ export class LoginService {
 
   loginUser(body: UserLogin): Observable<responseLogin> {
     return this.http.post<responseLogin>(
-      'http://localhost:3000/auth/login',
+      this.endPoint + '/login',
       body
     );
   }
 
   registerUser(body: UserRegister): Observable<responseRegister> {
     return this.http.post<responseRegister>(
-      'http://localhost:3000/auth/register',
+      this.endPoint + '/register',
       body
     );
   }

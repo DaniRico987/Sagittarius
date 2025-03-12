@@ -35,7 +35,7 @@ export class RegisterComponent {
 
   BuildForm(): FormGroup {
     return this.formBuilder.group({
-      username: [''],
+      name: [''],
       password: [''],
       email: [''],
     });
@@ -44,9 +44,9 @@ export class RegisterComponent {
   register(): void {
     this.loginService.registerUser(this.registerForm.value).subscribe(
       (res: responseRegister) => {
-        console.log(res);
         if (res.access_token) {
           this.loginService.setToken(res.access_token);
+          this.router.navigate(['/home']);
         }
       },
       (error) => {

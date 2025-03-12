@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
+import { LoginService } from './login.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
   private socket: Socket;
+  endPoint!: string;
 
-  constructor() {
-    this.socket = io('http://localhost:3000'); // Reemplaza con tu backend
+  constructor(public loginService: LoginService) {
+    this.endPoint = loginService.getEndpoint();
+    this.socket = io(this.endPoint);
   }
 
   // Escuchar eventos

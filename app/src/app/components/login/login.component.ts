@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { MaterialModule } from '../../shared/material/material.module';
+import { responseLogin } from '../../interface/user-login-interface';
 
 @Component({
   selector: 'app-login',
@@ -45,10 +46,10 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.loginService.loginUser(this.loginForm.value).subscribe(
-      (res) => {
-        console.log(res);
+      (res: responseLogin) => {
         if (res.access_token) {
           this.loginService.setToken(res.access_token);
+          this.router.navigate(['/home']);
         }
       },
       (error) => {
