@@ -13,8 +13,8 @@ import { Observable } from 'rxjs';
 })
 export class LoginService {
   token: string = '';
-  endPoint = 'https://pkbvmxnl-3000.use2.devtunnels.ms/auth';
-  // endPoint = 'http://localhost:3000/auth';
+  // endPoint = 'https://pkbvmxnl-3000.use2.devtunnels.ms/auth';
+  endPoint = 'http://localhost:3000/auth';
 
   constructor(private http: HttpClient, private router: Router) {}
 

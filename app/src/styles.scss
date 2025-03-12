@@ -17,3 +17,15 @@ html {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.dense-2 {
+  @include mat.form-field-density(-2);
+}
+
+.dense-3 {
+  @include mat.form-field-density(-3);
+}
+
+.dense-4 {
+  @include mat.form-field-density(-4);
+}

@@ -5,6 +5,7 @@ import { SocketService } from '../../service/socket.service';
 import { LoginService } from '../../service/login.service';
 import { Router } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
+import { Message } from '../../interface/message.interface';
 
 @Component({
   selector: 'app-chat',
@@ -15,7 +16,7 @@ import { MaterialModule } from '../../shared/material/material.module';
 })
 export class ChatComponent implements OnInit, OnDestroy {
   messageText: string = '';
-  messages: string[] = [];
+  messages: Message[] = [] as Message[];
 
   constructor(
     private socketService: SocketService,
@@ -29,7 +30,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     // Escuchar mensajes del socket
-    this.socketService.onEvent('chatMessage').subscribe((message: string) => {
+    this.socketService.onEvent('chatMessage').subscribe((message: Message) => {
       this.messages.push(message);
     });
   }

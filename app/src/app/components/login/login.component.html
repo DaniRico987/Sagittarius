@@ -3,55 +3,53 @@
   <form [formGroup]="loginForm" (ngSubmit)="login()">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Iniciar sesión</mat-card-title>
+        <mat-card-title>Bienvenido a Sagittarius - Iniciar sesión</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="form-group">
-          <!-- Email Field -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Correo electronico</mat-label>
-            <input
-              matInput
-              formControlName="email"
-              type="email"
-              placeholder="Ingresa tu email"
-            />
-            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-              El email es requerido
-            </mat-error>
-            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-              Por favor, ingrese un email válido
-            </mat-error>
-          </mat-form-field>
-        </div>
+        <div class="login-inside">
+          <div class="picture">
+            
+          </div>
+          <div class="form">
+            <div class="form-group">
+              <!-- Email Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Correo electronico</mat-label>
+                <input
+                  matInput
+                  formControlName="email"
+                  type="email"
+                  placeholder="Ingresa tu email"
+                />
+              </mat-form-field>
+            </div>
 
-        <div class="form-group">
-          <!-- Password Field -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Contraseña</mat-label>
-            <input
-              matInput
-              formControlName="password"
-              type="password"
-              placeholder="Ingresa tu contraseña"
-            />
-            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-              Contraseña requerida
-            </mat-error>
-          </mat-form-field>
-        </div>
+            <div class="form-group">
+              <!-- Password Field -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Contraseña</mat-label>
+                <input
+                  matInput
+                  formControlName="password"
+                  type="password"
+                  placeholder="Ingresa tu contraseña"
+                />
+              </mat-form-field>
+            </div>
 
-        <div class="form-group-bottom">
-          <a [routerLink]="'/register'">¿Aún no tienes cuenta?</a>
-          <!-- Login Button -->
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="loginForm.invalid"
-          >
-            Iniciar sesión
-          </button>
+            <div class="form-group-bottom">
+              <a [routerLink]="'/register'">¿Aún no tienes cuenta?</a>
+              <!-- Login Button -->
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="loginForm.invalid"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
         </div>
       </mat-card-content>
     </mat-card>

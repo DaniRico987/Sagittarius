@@ -1,19 +1,23 @@
 <mat-card class="chat-container">
-  <mat-card-header>
-    <mat-card-title>Chat</mat-card-title>
-  </mat-card-header>
-
-  <mat-card-content class="messages-container">
-    <div *ngFor="let message of messages" class="message">
-      {{ message }}
+  <mat-card-title>
+    <mat-icon>person</mat-icon>
+    Daniel Rico
+  </mat-card-title>
+  <mat-card-content>
+    <div class="messages-container">
+      <div *ngFor="let message of messages" class="message">
+        {{ message.content }}
+      </div>
     </div>
   </mat-card-content>
-
   <mat-card-actions class="input-container">
-    <mat-form-field class="message-input" appearance="outline">
-      <mat-label>Escribe un mensaje</mat-label>
-      <input matInput [(ngModel)]="messageText" (keydown.enter)="sendMessage()" />
+    <mat-form-field class="message-input dense-3" appearance="outline">
+      <mat-label>Escribe tu mensaje</mat-label>
+      <input matInput [(ngModel)]="messageText" (keyup.enter)="sendMessage()">
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="!messageText.trim()">Enviar</button>
+    <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="!messageText.trim()">
+      <mat-icon>send</mat-icon>
+      Enviar
+    </button>
   </mat-card-actions>
 </mat-card>

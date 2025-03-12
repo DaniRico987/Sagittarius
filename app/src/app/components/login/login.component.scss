@@ -5,30 +5,110 @@
   align-items: center;
   height: 100vh;
   padding: 20px;
+  background-color: #0d1b2a;
+}
+
+.login-inside {
+  display: grid;
+  place-items: center;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
 }
 
 mat-card {
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
+  max-width: fit-content;
+  padding: 30px;
+  background-image: url("../../../assets/images/login.svg");
+  color: #e0e1dd;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.form,
+.picture {
+  padding: 24px;
+  flex: 1;
+}
+
+.picture {
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../../../assets/images/login-decorative.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+mat-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
 }
 
 .form-group {
-  margin: 16px;
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+  min-width: 300px;
+  border-radius: 8px;
+  background-color: #e0e1dd;
+  padding: 8px;
+}
+
+mat-form-field input {
+  color: #1b263b;
+  border: 0 !important;
 }
 
 .form-group-bottom {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  flex-flow: wrap column;
-  margin: 16px;
+  gap: 10px;
 
   a {
-    margin-bottom: 20px;
+    color: #e0e1dd;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 8px auto;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 }
 
-.full-width {
+button {
   width: 100%;
+  background-color: #415a77;
+  color: #e0e1dd;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #778da9;
+  color: #0d1b2a;
+}
+
+::ng-deep .full-width .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
 }
