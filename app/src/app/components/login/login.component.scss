@@ -19,8 +19,8 @@ mat-card {
   width: 100%;
   max-width: fit-content;
   padding: 30px;
-  background-image: url("../../../assets/images/login.svg");
-  color: #e0e1dd;
+  background-image: #e0e1dd;
+  color: #0d1b2a;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -43,45 +43,36 @@ mat-card {
   background-repeat: no-repeat;
 }
 
-mat-card-header {
-  width: 100%;
+.form-group {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-mat-card-title {
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.form-group {
+  align-items: flex-start;
+  flex-flow: wrap column;
   margin-bottom: 16px;
+
+  h2{
+    margin-bottom: 20px;
+    max-width: 300px;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 mat-form-field {
   width: 100%;
   min-width: 300px;
   border-radius: 8px;
-  background-color: #e0e1dd;
   padding: 8px;
-}
-
-mat-form-field input {
-  color: #1b263b;
-  border: 0 !important;
 }
 
 .form-group-bottom {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 
   a {
-    color: #e0e1dd;
+    color: #1b263b;
     font-size: 14px;
     text-decoration: none;
     margin: 8px auto;
