@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { responseRegister } from '../../interface/user-register-interface';
 import { Router, RouterModule } from '@angular/router';
@@ -35,9 +40,9 @@ export class RegisterComponent {
 
   BuildForm(): FormGroup {
     return this.formBuilder.group({
-      name: [''],
-      password: [''],
-      email: [''],
+      name: ['', Validators.required],
+      email: ['', Validators.required],
+      password: ['', Validators.required],
     });
   }
 

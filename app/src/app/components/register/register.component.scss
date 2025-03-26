@@ -5,30 +5,113 @@
   align-items: center;
   height: 100vh;
   padding: 20px;
+  background-color: #0d1b2a;
+}
+
+.register-inside {
+  display: grid;
+  place-items: center;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+}
+
+@keyframes expandFromCenter {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 mat-card {
+  animation: expandFromCenter 0.5s ease-in-out;
+  transform-origin: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 840px;
   padding: 20px;
+  background-image: #e0e1dd;
+  color: #0d1b2a;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.form,
+.picture {
+  padding: 24px;
+  flex: 1;
+}
+
+.form h2 {
+  color: #1b263b;
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.picture {
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../../../assets/images/login-decorative.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .form-group {
-  margin: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-flow: wrap column;
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+  min-width: 300px;
+  border-radius: 8px;
+  padding: 8px;
 }
 
 .form-group-bottom {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  flex-flow: wrap column;
-  margin: 16px;
+  gap: 8px;
 
   a {
-    margin-bottom: 20px;
+    color: #1b263b;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 8px auto;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 }
 
-.full-width {
-  width: 100%;
+button {
+  width: 70%;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease-in;
+}
+
+button:hover {
+  scale: 1.05;
+  background-color: #1b263b;
+}
+
+::ng-deep .full-width .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
 }
