@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  Param, 
+  Delete, 
+  UsePipes, 
+  ValidationPipe 
+} from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from '../schemas/message.schema';
@@ -7,31 +16,48 @@ import { Message } from '../schemas/message.schema';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
+  // Crear un nuevo mensaje privado
   @Post()
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   async create(@Body() createMessageDto: CreateMessageDto): Promise<Message> {
-    return this.messagesService.createMessage(createMessageDto);
+    try {
+      return await this.messagesService.createMessage(createMessageDto);
+    } catch (error) {
+      throw new Error('Error al enviar el mensaje privado');
+    }
   }
 
-  @Get()
-  async findAll(): Promise<Message[]> {
-    return this.messagesService.findAll();
-  }
+  // Obtener todas las conversaciones del usuario autenticado
+  // @Get('user/:userId')
+  // async getUserConversations(@Param('userId') userId: string): Promise<any[]> {
+  //   try {
+  //     return await this.messagesService.getUserConversations(userId);
+  //   } catch (error) {
+  //     throw new Error('Error al cargar las conversaciones');
+  //   }
+  // }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Message | null> {
-    return this.messagesService.findOne(id);
-  }
-
-  @Get('conversation/:user1Id/:user2Id')
-  async findConversation(
-    @Param('user1Id') user1Id: string,
-    @Param('user2Id') user2Id: string,
+  // Obtener mensajes entre dos usuarios (conversación privada)
+  @Get('chat/:userId/:receiverId')
+  async getConversation(
+    @Param('userId') userId: string, 
+    @Param('receiverId') receiverId: string
   ): Promise<Message[]> {
-    return this.messagesService.findConversation(user1Id, user2Id);
+    try {
+      return await this.messagesService.getConversation(userId, receiverId);
+    } catch (error) {
+      throw new Error('Error al cargar la conversación');
+    }
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Message | null> {
-    return this.messagesService.remove(id);
-  }
+  // // Eliminar un mensaje por ID
+  // @Delete(':id')
+  // async delete(@Param('id') id: string): Promise<{ message: string }> {
+  //   try {
+  //     await this.messagesService.deleteMessage(id);
+  //     return { message: 'Mensaje eliminado correctamente' };
+  //   } catch (error) {
+  //     throw new Error('Error al eliminar el mensaje');
+  //   }
+  // }
 }

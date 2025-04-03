@@ -1,57 +1,65 @@
 import {
-  ConnectedSocket,
-  MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+  WebSocketServer,
+  ConnectedSocket,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { MessagesService } from './messages.service';
+import { CreateMessageDto } from './dto/create-message.dto';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ cors: true })
-export class MessagesGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
-  private users = new Map<string, string>(); // userID -> socketID
+export class MessagesGateway {
+  @WebSocketServer()
+  server: Server;
+
+  private readonly logger = new Logger(MessagesGateway.name);
 
   constructor(private readonly messagesService: MessagesService) {}
 
-  handleConnection(client: Socket) {
-    const userId = client.handshake.query.userId as string;
-    if (userId) {
-      this.users.set(userId, client.id);
-      console.log(`Usuario ${userId} conectado con ID ${client.id}`);
-    }
-  }
-
-  handleDisconnect(client: Socket) {
-    for (const [userId, socketId] of this.users.entries()) {
-      if (socketId === client.id) {
-        this.users.delete(userId);
-        console.log(`Usuario ${userId} desconectado`);
-        break;
-      }
-    }
-  }
-
-  @SubscribeMessage('sendMessage')
-  async handleMessage(
-    @MessageBody()
-    message: { sender_id: string; receiver_id: string; content: string },
+  @SubscribeMessage('joinPrivateChat')
+  async handleJoinChat(
     @ConnectedSocket() client: Socket,
+    @MessageBody() data: { userId: string; receiverId: string },
   ) {
-    console.log('Mensaje recibido:', message);
-
-    // Guardar mensaje en base de datos
-    const savedMessage = await this.messagesService.createMessage(message);
-
-    // Buscar al destinatario y enviarle el mensaje si está conectado
-    const receiverSocketId = this.users.get(message.receiver_id);
-    if (receiverSocketId) {
-      client.to(receiverSocketId).emit('receiveMessage', savedMessage);
+    if (!data.userId || !data.receiverId) {
+      this.logger.warn('❌ Usuario o receptor inválidos al unirse a la sala');
+      return;
     }
 
-    return savedMessage;
+    const room = this.getRoomId(data.userId, data.receiverId);
+    client.join(room);
+    this.logger.log(`✅ Usuario ${data.userId} unido a la sala ${room}`);
+
+    try {
+      const messages = await this.messagesService.getConversation(data.userId, data.receiverId);
+      client.emit('loadMessages', messages);
+      this.logger.log(`📜 Mensajes previos enviados a la sala ${room}`);
+    } catch (error) {
+      this.logger.error('🚨 Error al cargar mensajes previos', error);
+    }
+  }
+
+  @SubscribeMessage('privateMessage')
+  async handlePrivateMessage(@MessageBody() messageDto: CreateMessageDto) {
+    try {
+      if (typeof messageDto !== 'object' || !messageDto.sender_id || !messageDto.receiver_id || !messageDto.content) {
+        this.logger.warn('❌ Mensaje inválido recibido', messageDto);
+        return;
+      }
+
+      const savedMessage = await this.messagesService.createMessage(messageDto);
+      const room = this.getRoomId(messageDto.sender_id, messageDto.receiver_id);
+      this.server.to(room).emit('privateMessage', savedMessage);
+      this.logger.log(`📩 Mensaje enviado a la sala ${room}`);
+    } catch (error) {
+      this.logger.error('🚨 Error al manejar el mensaje privado', error);
+    }
+  }
+
+  private getRoomId(userId: string, receiverId: string): string {
+    return [userId, receiverId].sort().join('-');
   }
 }

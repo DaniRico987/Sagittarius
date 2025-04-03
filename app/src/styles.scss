@@ -10,13 +10,14 @@ html {
       primary: mat.$azure-palette,
       tertiary: mat.$blue-palette,
     ),
-    typography: Roboto,
+    typography: Monserrat,
     density: 0,
   ));
 }/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Monserrat, "Helvetica Neue", sans-serif;
+letter-spacing: 1.1px }
 
 .dense-2 {
   @include mat.form-field-density(-2);

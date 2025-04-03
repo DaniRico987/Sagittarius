@@ -22,26 +22,16 @@ export class LoginService {
     this.token = token;
   }
 
-  getEndpoint() {
-    return this.endPoint;
-  }
-
   getTokenValidation() {
     return this.token ? true : false;
   }
 
   loginUser(body: UserLogin): Observable<responseLogin> {
-    return this.http.post<responseLogin>(
-      this.endPoint + '/login',
-      body
-    );
+    return this.http.post<responseLogin>(this.endPoint + '/login', body);
   }
 
   registerUser(body: UserRegister): Observable<responseRegister> {
-    return this.http.post<responseRegister>(
-      this.endPoint + '/register',
-      body
-    );
+    return this.http.post<responseRegister>(this.endPoint + '/register', body);
   }
 
   logout() {
