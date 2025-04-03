@@ -1,0 +1,17 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 100  # 100 usuarios nuevos por segundo
+      rampTo: 200       # Aumenta hasta 200 usuarios por segundo
+
+scenarios:
+  - flow:
+      - get:
+          url: "/users"
+      - post:
+          url: "/messages"
+          json:
+            sender: "{{ userId }}"
+            receiver: "user2"
+            message: "Hola, ¿cómo estás?"
