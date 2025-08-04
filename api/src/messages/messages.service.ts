@@ -9,34 +9,37 @@ export class MessagesService {
   constructor(@InjectModel('Message') private messageModel: Model<Message>) {}
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
-    const createdMessage = new this.messageModel({
-      ...createMessageDto,
-      timestamp: new Date(),
-    });
-    return createdMessage.save();
+    try {
+      if (!createMessageDto.sender_id || !createMessageDto.receiver_id || !createMessageDto.content) {
+        throw new Error('Datos del mensaje incompletos');
+      }
+      
+      const newMessage = new this.messageModel(createMessageDto);
+      return await newMessage.save();
+    } catch (error) {
+      console.error('❌ Error al guardar el mensaje:', error.message);
+      throw new Error(`Error al guardar el mensaje: ${error.message}`);
+    }
   }
 
-  async findAll(): Promise<Message[]> {
-    return this.messageModel.find().exec();
-  }
-
-  async findOne(id: string): Promise<Message | null> {
-    return this.messageModel.findById(id).exec();
-  }
-
-  async findConversation(user1Id: string, user2Id: string): Promise<Message[]> {
-    return this.messageModel
-      .find({
-        $or: [
-          { sender_id: user1Id, receiver_id: user2Id },
-          { sender_id: user2Id, receiver_id: user1Id },
-        ],
-      })
-      .sort({ timestamp: 1 })
-      .exec();
-  }
-
-  async remove(id: string): Promise<Message | null> {
-    return this.messageModel.findByIdAndDelete(id).exec();
+  async getConversation(userId: string, receiverId: string): Promise<Message[]> {
+    try {
+      if (!userId || !receiverId) {
+        throw new Error('IDs de usuario inválidos');
+      }
+      
+      return await this.messageModel
+        .find({
+          $or: [
+            { sender_id: userId, receiver_id: receiverId },
+            { sender_id: receiverId, receiver_id: userId },
+          ],
+        })
+        .sort({ timestamp: 1 })
+        .exec();
+    } catch (error) {
+      console.error('❌ Error al obtener la conversación:', error.message);
+      throw new Error(`Error al obtener la conversación: ${error.message}`);
+    }
   }
 }
