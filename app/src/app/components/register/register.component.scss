@@ -89,7 +89,6 @@ $input-bg: #2c2c2c;
       font-weight: 800;
       color: $primary-color;
       margin: 0;
-      letter-spacing: -1px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
@@ -103,7 +102,6 @@ $input-bg: #2c2c2c;
   .form-inputs {
     display: flex;
     flex-direction: column;
-    gap: 20px;
   }
 
   .custom-field {
@@ -200,7 +198,6 @@ $input-bg: #2c2c2c;
       font-weight: 600;
       border-radius: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       transition: all 0.3s ease;
       background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
       color: #fff;

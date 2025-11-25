@@ -1,6 +1,5 @@
 .friends-container {
   padding: 20px;
-  max-width: 600px;
   margin: 0 auto;
 
   mat-card {
@@ -19,14 +18,12 @@
 .add-friend-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px 0;
+  padding: 10px 0;
 
   button {
-    width: fit-content;
-    margin: 0 auto;
     background-color: var(--primary-color) !important;
     color: #ffffff !important;
+    margin-left: auto;
 
     &:hover {
       background-color: var(--primary-color) !important;
