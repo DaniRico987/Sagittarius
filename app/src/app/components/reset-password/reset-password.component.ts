@@ -1,5 +1,6 @@
+import { Component, Inject, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,19 +9,17 @@ import {
 } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { NotificationService } from '../../service/notification.service';
-import { responseRegister } from '../../interface/user-register-interface';
-import { Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-reset-password',
   standalone: true,
   imports: [CommonModule, MaterialModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
+  templateUrl: './reset-password.component.html',
+  styleUrls: ['./reset-password.component.scss'],
 })
-export class RegisterComponent {
-  registerForm!: FormGroup;
+export class ResetPasswordComponent implements OnInit {
+  resetForm!: FormGroup;
   formBuilder: FormBuilder;
   hidePassword = true;
 
@@ -34,37 +33,29 @@ export class RegisterComponent {
   }
 
   ngOnInit(): void {
-    if (this.loginService.getTokenValidation()) {
-      this.router.navigate(['/home']);
-    }
-
-    this.registerForm = this.BuildForm();
+    this.resetForm = this.BuildForm();
   }
 
   BuildForm(): FormGroup {
     return this.formBuilder.group({
-      name: ['', Validators.required],
-      email: ['', Validators.required],
-      password: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      newPassword: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
-  register(): void {
-    this.loginService.registerUser(this.registerForm.value).subscribe(
-      (res: responseRegister) => {
-        if (res.access_token) {
-          this.loginService.setToken(res.access_token);
-          this.notificationService.success(
-            '¡Registro exitoso! Bienvenido a Sagittarius.'
-          );
-          this.router.navigate(['/home']);
-        }
+  resetPassword(): void {
+    const { email, newPassword } = this.resetForm.value;
+
+    this.loginService.resetPassword(email, newPassword).subscribe(
+      (res) => {
+        this.notificationService.success('¡Contraseña actualizada con éxito!');
+        this.router.navigate(['/login']);
       },
       (error) => {
         console.error(error);
-        if (error.status === 409) {
+        if (error.status === 401) {
           this.notificationService.error(
-            'Este email ya está registrado. Por favor, usa otro.'
+            'Usuario no encontrado. Verifica tu email.'
           );
         } else if (error.status === 0) {
           this.notificationService.error(
@@ -72,7 +63,7 @@ export class RegisterComponent {
           );
         } else {
           this.notificationService.error(
-            'Error al registrarse. Por favor, intenta nuevamente.'
+            'Error al actualizar la contraseña. Por favor, intenta nuevamente.'
           );
         }
       }

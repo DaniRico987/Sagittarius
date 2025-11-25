@@ -26,6 +26,11 @@ export class AuthController {
     return this.authService.register(body);
   }
 
+  @Post('reset-password')
+  async resetPassword(@Body() body: { email: string; newPassword: string }) {
+    return this.authService.resetPassword(body.email, body.newPassword);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {

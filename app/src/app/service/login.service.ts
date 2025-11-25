@@ -34,6 +34,19 @@ export class LoginService {
     return this.http.post<responseRegister>(this.endPoint + '/register', body);
   }
 
+  resetPassword(
+    email: string,
+    newPassword: string
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      this.endPoint + '/reset-password',
+      {
+        email,
+        newPassword,
+      }
+    );
+  }
+
   logout() {
     this.token = '';
     this.router.navigate(['/login']);

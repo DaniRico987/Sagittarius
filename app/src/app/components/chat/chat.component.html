@@ -1,38 +1,121 @@
-<mat-card class="chat-container">
-  <mat-card-title>
-    <mat-icon>person</mat-icon>
-    {{ user.name ? user.name : "Usuario" }}
-  </mat-card-title>
-  <mat-card-content>
-    <div #chatContainer class="messages">
-      <div
-        *ngFor="let message of messages"
-        [ngClass]="{
-          sent: message.sender_id === user.id,
-          received: message.sender_id !== user.id
-        }"
-        class="message"
-      >
-        <span class="message-content">{{ message.content }}</span>
-        <span class="timestamp">{{
-          message.timestamp | date : "shortTime"
-        }}</span>
+<div class="main-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Chats</h3>
+      <div class="actions">
+        <button mat-icon-button (click)="toggleFriends()" matTooltip="Amigos">
+          <mat-icon>people</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="openCreateGroupDialog()"
+          matTooltip="Nuevo Grupo"
+        >
+          <mat-icon>group_add</mat-icon>
+        </button>
       </div>
     </div>
-  </mat-card-content>
-  <mat-card-actions class="input-container">
-    <mat-form-field class="message-input dense-4  " appearance="outline">
-      <mat-label>Escribe tu mensaje</mat-label>
-      <input matInput [(ngModel)]="messageText" (keyup.enter)="sendMessage()" />
-    </mat-form-field>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="sendMessage()"
-      [disabled]="!messageText.trim()"
-    >
-      <mat-icon>send</mat-icon>
-      Enviar
-    </button>
-  </mat-card-actions>
-</mat-card>
+
+    <mat-list class="conversation-list">
+      <mat-list-item
+        *ngFor="let conv of conversations"
+        (click)="selectConversation(conv)"
+        [class.active]="selectedConversation?._id === conv._id"
+      >
+        <mat-icon matListItemIcon>{{
+          conv.isGroup ? "group" : "person"
+        }}</mat-icon>
+        <div matListItemTitle>{{ conv.name || "Chat" }}</div>
+        <div matListItemLine class="last-msg" *ngIf="conv.lastMessage">
+          {{ conv.lastMessage.content | slice : 0 : 20 }}...
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+    <div class="sidebar-footer">
+      <button
+        mat-icon-button
+        (click)="toggleTheme()"
+        [matTooltip]="themeService.isDarkMode() ? 'Modo Claro' : 'Modo Oscuro'"
+      >
+        <mat-icon>{{
+          themeService.isDarkMode() ? "light_mode" : "dark_mode"
+        }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="logout()" matTooltip="Cerrar Sesión">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-area">
+    <!-- Friends View -->
+    <app-friends *ngIf="showFriends"></app-friends>
+
+    <!-- Chat View -->
+    <mat-card class="chat-card" *ngIf="selectedConversation && !showFriends">
+      <mat-card-header class="chat-header">
+        <mat-card-title>
+          <mat-icon>{{
+            selectedConversation.isGroup ? "group" : "person"
+          }}</mat-icon>
+          {{ selectedConversation.name || "Chat" }}
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content class="chat-content">
+        <div #chatContainer class="messages-container">
+          <div
+            *ngFor="let message of messages"
+            [ngClass]="{
+              sent: message.sender_id === user.id,
+              received: message.sender_id !== user.id
+            }"
+            class="message-bubble"
+          >
+            <div
+              class="sender-name"
+              *ngIf="
+                selectedConversation.isGroup && message.sender_id !== user.id
+              "
+            >
+              {{ message.sender_id.name || "Usuario" }}
+            </div>
+            <span class="message-text">{{ message.content }}</span>
+            <span class="timestamp">{{
+              message.timestamp | date : "shortTime"
+            }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="input-area">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Escribe un mensaje...</mat-label>
+          <input
+            matInput
+            [(ngModel)]="messageText"
+            (keyup.enter)="sendMessage()"
+            autocomplete="off"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="sendMessage()"
+            [disabled]="!messageText.trim()"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
+        </mat-form-field>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!selectedConversation && !showFriends">
+      <mat-icon class="large-icon">chat</mat-icon>
+      <h2>Selecciona un chat o inicia una nueva conversación</h2>
+    </div>
+  </div>
+</div>

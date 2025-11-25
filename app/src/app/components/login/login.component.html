@@ -1,53 +1,79 @@
-<!-- login.component.html -->
-<div class="login-container">
-  <form [formGroup]="loginForm" (ngSubmit)="login()">
-    <mat-card>
-      <mat-card-content>
-        <div class="login-inside">
-          <div class="picture"></div>
-          <div class="form">
-            <h2>Bienvenido a Sagittarius Iniciar sesión</h2>
-            <div class="form-group">
-              <!-- Email Field -->
-              <mat-form-field appearance="outline" class="full-width dense-3">
-                <mat-label>Correo electronico</mat-label>
-                <input
-                  matInput
-                  formControlName="email"
-                  type="email"
-                  placeholder="Ingresa tu email"
-                />
-              </mat-form-field>
-            </div>
+<div class="login-wrapper">
+  <div class="login-card">
+    <!-- Left Side: Form -->
+    <div class="login-form-section">
+      <div class="brand-header">
+        <h1>Sagittarius</h1>
+        <p>Bienvenido de nuevo</p>
+      </div>
 
-            <div class="form-group">
-              <!-- Password Field -->
-              <mat-form-field appearance="outline" class="full-width dense-3">
-                <mat-label>Contraseña</mat-label>
-                <input
-                  matInput
-                  formControlName="password"
-                  type="password"
-                  placeholder="Ingresa tu contraseña"
-                />
-              </mat-form-field>
-            </div>
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <div class="form-inputs">
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>Correo electrónico</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput formControlName="email" type="email" />
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+              El correo es requerido
+            </mat-error>
+          </mat-form-field>
 
-            <div class="form-group-bottom">
-              <a [routerLink]="'/register'">¿Aún no tienes cuenta?</a>
-              <!-- Login Button -->
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="loginForm.invalid"
-              >
-                Iniciar sesión
-              </button>
-            </div>
+          <mat-form-field appearance="outline" class="custom-field">
+            <mat-label>Contraseña</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
+            <input
+              matInput
+              formControlName="password"
+              [type]="hidePassword ? 'password' : 'text'"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="togglePasswordVisibility(); $event.stopPropagation()"
+              (mousedown)="$event.preventDefault()"
+              [attr.aria-label]="'Mostrar contraseña'"
+            >
+              <mat-icon>{{
+                hidePassword ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              La contraseña es requerida
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="forgot-password">
+          <a [routerLink]="['/reset-password']">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="loginForm.invalid"
+            class="login-btn"
+          >
+            Iniciar Sesión
+          </button>
+
+          <div class="register-link">
+            <span>¿No tienes cuenta?</span>
+            <a [routerLink]="['/register']">Regístrate aquí</a>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
-  </form>
+      </form>
+    </div>
+
+    <!-- Right Side: Decorative -->
+    <div class="login-decorative-section">
+      <div class="decorative-content">
+        <h2>Conecta con tu mundo</h2>
+        <p>La mejor experiencia de chat para ti y tus amigos.</p>
+      </div>
+      <div class="decorative-overlay"></div>
+    </div>
+  </div>
 </div>

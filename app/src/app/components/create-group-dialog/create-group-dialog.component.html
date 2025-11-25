@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Crear Nuevo Grupo</h2>
+<mat-dialog-content>
+  <div class="form-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre del Grupo</mat-label>
+      <input matInput [(ngModel)]="groupName" placeholder="Ej. Equipo Proyecto">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Seleccionar Participantes</mat-label>
+      <mat-select [(ngModel)]="selectedFriends" multiple>
+        <mat-option *ngFor="let friend of friends" [value]="friend._id">
+          {{ friend.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="onCreate()" [disabled]="!groupName || selectedFriends.length === 0">
+    Crear
+  </button>
+</mat-dialog-actions>

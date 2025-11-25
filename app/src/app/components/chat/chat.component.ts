@@ -10,16 +10,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocketService } from '../../service/socket.service';
 import { LoginService } from '../../service/login.service';
+import { ThemeService } from '../../service/theme.service';
 import { Router } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
 import { Message } from '../../interface/message.interface';
 import { UserService } from '../../service/user.service';
 import { UserChat } from '../../interface/user-chat.interface';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-dialog.component';
+import { FriendsComponent } from '../friends/friends.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule],
+  imports: [CommonModule, FormsModule, MaterialModule, FriendsComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
 })
@@ -28,13 +32,18 @@ export class ChatComponent implements OnInit, OnDestroy {
   messageText: string = '';
   messages: Message[] = [];
   user!: UserChat;
-  receiverId!: string;
+
+  conversations: any[] = [];
+  selectedConversation: any = null;
+  showFriends: boolean = false;
 
   constructor(
     private socketService: SocketService,
     private loginService: LoginService,
     private userService: UserService,
-    private router: Router
+    public themeService: ThemeService,
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -44,13 +53,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.listenForMessages();
   }
 
-
-
   scrollToBottom() {
-    setTimeout(() => {
-    this.chatContainer.nativeElement.scrollTop =
-      this.chatContainer.nativeElement.scrollHeight;
-    },  100);
+    if (this.chatContainer) {
+      setTimeout(() => {
+        this.chatContainer.nativeElement.scrollTop =
+          this.chatContainer.nativeElement.scrollHeight;
+      }, 100);
+    }
   }
 
   private validateUser(): boolean {
@@ -67,50 +76,103 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     this.user = userData;
-    this.receiverId = this.userService.getReceiverId();
-
-    if (!this.receiverId) {
-      console.error('⚠️ Error: No hay un receptor seleccionado.');
-      return false;
-    }
-
     return true;
   }
 
   private initializeChat() {
     this.socketService.connect();
-    this.socketService.joinPrivateChat(this.user.id, this.receiverId);
+    this.loadConversations();
+  }
 
-    // Cargar mensajes previos
-    this.socketService
-      .loadPreviousMessages(this.user.id, this.receiverId)
-      .subscribe((msgs) => {
-        this.messages = msgs;
-        this.scrollToBottom();
-      });
+  async loadConversations() {
+    try {
+      this.conversations = await this.socketService.getUserConversations(
+        this.user.id
+      );
+    } catch (error) {
+      console.error('Error loading conversations', error);
+    }
+  }
+
+  selectConversation(conversation: any) {
+    this.selectedConversation = conversation;
+    this.showFriends = false;
+    this.messages = [];
+
+    this.socketService.joinChat(conversation._id);
+    // The socket will emit 'loadMessages' which we listen to
+  }
+
+  toggleFriends() {
+    this.showFriends = !this.showFriends;
+    this.selectedConversation = null;
+  }
+
+  openCreateGroupDialog() {
+    const dialogRef = this.dialog.open(CreateGroupDialogComponent, {
+      width: '400px',
+      data: { userId: this.user.id },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        const participants = [this.user.id, ...result.participants];
+        await this.socketService.createConversation(
+          result.name,
+          participants,
+          true,
+          [this.user.id]
+        );
+        this.loadConversations();
+      }
+    });
   }
 
   private listenForMessages() {
+    this.socketService.onEvent<Message[]>('loadMessages').subscribe((msgs) => {
+      this.messages = msgs;
+      this.scrollToBottom();
+    });
+
+    this.socketService.onEvent<Message>('newMessage').subscribe((message) => {
+      if (
+        this.selectedConversation &&
+        message.conversation_id === this.selectedConversation._id
+      ) {
+        this.messages.push(message);
+        this.scrollToBottom();
+      }
+      // Update last message in conversation list logic could go here
+    });
+
+    // Legacy support if needed
     this.socketService
       .onEvent<Message>('privateMessage')
       .subscribe((message) => {
-        this.messages.push(message);
-        this.scrollToBottom();
+        // Handle legacy private messages if any
       });
   }
 
   sendMessage() {
-    if (!this.messageText.trim() || !this.receiverId) return;
+    if (!this.messageText.trim() || !this.selectedConversation) return;
 
     this.socketService.sendMessage(
       this.user.id,
-      this.receiverId,
-      this.messageText
+      this.messageText,
+      this.selectedConversation._id
     );
     this.messageText = '';
   }
 
   ngOnDestroy() {
     this.socketService.disconnect();
+  }
+
+  logout(): void {
+    this.loginService.logout();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 }

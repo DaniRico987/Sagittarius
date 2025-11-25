@@ -6,8 +6,11 @@ export class Message {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   sender_id: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  receiver_id: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Conversation', required: true })
+  conversation_id: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: false })
+  receiver_id?: string; // Kept for backward compatibility or specific direct messaging if needed, but conversation_id is preferred
 
   @Prop({ required: true })
   content: string;

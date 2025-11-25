@@ -5,6 +5,13 @@ export const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   avatar: { type: String, required: false },
+  friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  friendRequests: [
+    {
+      from: { type: Schema.Types.ObjectId, ref: 'User' },
+      status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+    },
+  ],
 });
 
 export interface User extends Document {
@@ -13,4 +20,6 @@ export interface User extends Document {
   email: string;
   password: string;
   avatar?: string;
+  friends: string[];
+  friendRequests: { from: string; status: 'pending' | 'accepted' | 'rejected' }[];
 }

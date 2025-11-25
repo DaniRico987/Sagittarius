@@ -1,0 +1,21 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 300px;
+  padding-top: 10px;
+}
+
+::ng-deep .mat-mdc-dialog-container {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+}
+
+::ng-deep .mat-mdc-dialog-title {
+  color: var(--text-primary) !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  color: var(--text-primary) !important;
+}

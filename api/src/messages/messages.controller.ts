@@ -27,17 +27,22 @@ export class MessagesController {
     }
   }
 
-  // Obtener todas las conversaciones del usuario autenticado
-  // @Get('user/:userId')
-  // async getUserConversations(@Param('userId') userId: string): Promise<any[]> {
-  //   try {
-  //     return await this.messagesService.getUserConversations(userId);
-  //   } catch (error) {
-  //     throw new Error('Error al cargar las conversaciones');
-  //   }
-  // }
+  @Post('conversations')
+  async createConversation(@Body() body: { name?: string; participants: string[]; isGroup: boolean; admins?: string[] }) {
+    return this.messagesService.createConversation(body.name || '', body.participants, body.isGroup, body.admins || []);
+  }
 
-  // Obtener mensajes entre dos usuarios (conversación privada)
+  @Get('conversations/:userId')
+  async getUserConversations(@Param('userId') userId: string) {
+    return this.messagesService.getUserConversations(userId);
+  }
+
+  @Get('conversation/:conversationId')
+  async getMessagesByConversation(@Param('conversationId') conversationId: string) {
+    return this.messagesService.getMessagesByConversation(conversationId);
+  }
+
+  // Obtener mensajes entre dos usuarios (conversación privada) - Legacy/Direct
   @Get('chat/:userId/:receiverId')
   async getConversation(
     @Param('userId') userId: string, 
@@ -49,15 +54,4 @@ export class MessagesController {
       throw new Error('Error al cargar la conversación');
     }
   }
-
-  // // Eliminar un mensaje por ID
-  // @Delete(':id')
-  // async delete(@Param('id') id: string): Promise<{ message: string }> {
-  //   try {
-  //     await this.messagesService.deleteMessage(id);
-  //     return { message: 'Mensaje eliminado correctamente' };
-  //   } catch (error) {
-  //     throw new Error('Error al eliminar el mensaje');
-  //   }
-  // }
 }

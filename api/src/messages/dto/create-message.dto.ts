@@ -5,9 +5,13 @@ export class CreateMessageDto {
   @IsString()
   readonly sender_id: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  readonly receiver_id: string;
+  readonly conversation_id?: string;
+
+  @IsOptional()
+  @IsString()
+  readonly receiver_id?: string;
 
   @IsNotEmpty()
   @IsString()

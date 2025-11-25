@@ -2,12 +2,16 @@ import { Module } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { MessagesController } from './messages.controller';
 import { MessageSchema } from 'src/schemas/message.schema';
+import { ConversationSchema } from 'src/schemas/conversation.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessagesGateway } from './messages.gateway';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Message', schema: MessageSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Message', schema: MessageSchema },
+      { name: 'Conversation', schema: ConversationSchema },
+    ]),
   ],
   providers: [MessagesService,MessagesGateway],
   controllers: [MessagesController],

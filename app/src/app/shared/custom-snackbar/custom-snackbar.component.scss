@@ -1,0 +1,131 @@
+.snackbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 500px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  border: 1px solid;
+  animation: slideDown 0.3s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+.snackbar-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.snackbar-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.snackbar-message {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.snackbar-close {
+  margin-left: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Success variant
+.snackbar-success {
+  background: linear-gradient(135deg, rgba(3, 218, 198, 0.12), rgba(3, 218, 198, 0.08));
+  border-color: rgba(3, 218, 198, 0.4);
+  
+  .snackbar-icon {
+    color: #03dac6;
+  }
+  
+  .snackbar-message {
+    color: #e0e0e0;
+  }
+  
+  .snackbar-close {
+    color: #03dac6;
+  }
+}
+
+// Error variant
+.snackbar-error {
+  background: linear-gradient(135deg, rgba(207, 102, 121, 0.12), rgba(207, 102, 121, 0.08));
+  border-color: rgba(207, 102, 121, 0.4);
+  
+  .snackbar-icon {
+    color: #cf6679;
+  }
+  
+  .snackbar-message {
+    color: #e0e0e0;
+  }
+  
+  .snackbar-close {
+    color: #cf6679;
+  }
+}
+
+// Warning variant
+.snackbar-warning {
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.12), rgba(255, 179, 0, 0.08));
+  border-color: rgba(255, 179, 0, 0.4);
+  
+  .snackbar-icon {
+    color: #ffb300;
+  }
+  
+  .snackbar-message {
+    color: #e0e0e0;
+  }
+  
+  .snackbar-close {
+    color: #ffb300;
+  }
+}
+
+// Info variant
+.snackbar-info {
+  background: linear-gradient(135deg, rgba(187, 134, 252, 0.12), rgba(187, 134, 252, 0.08));
+  border-color: rgba(187, 134, 252, 0.4);
+  
+  .snackbar-icon {
+    color: #bb86fc;
+  }
+  
+  .snackbar-message {
+    color: #e0e0e0;
+  }
+  
+  .snackbar-close {
+    color: #bb86fc;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

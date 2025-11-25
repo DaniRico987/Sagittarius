@@ -7,6 +7,10 @@ import { MatCardModule } from '@angular/material/card'; // Para tarjetas
 import { MatToolbarModule } from '@angular/material/toolbar'; // Si quieres un toolbar (barra de navegación)
 import { MatSnackBarModule } from '@angular/material/snack-bar'; // Para notificaciones emergentes (opcional)
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Para el spinner de carga (opcional)
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
 
 const materialModules = [
   MatIconModule,
@@ -16,7 +20,11 @@ const materialModules = [
   MatCardModule,
   MatToolbarModule,
   MatSnackBarModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatDialogModule,
+  MatTooltipModule,
+  MatListModule,
+  MatTabsModule
 ];
 
 @NgModule({

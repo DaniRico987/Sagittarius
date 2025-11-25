@@ -12,7 +12,6 @@ export class UserService {
   getReceiverId(): string {
     return this.receiver_id;
   }
-  
 
   getUserName(): UserChat | null {
     const token: string | null = this.loginService.getTokenValidation()
@@ -42,5 +41,47 @@ export class UserService {
       console.error('Error al decodificar el token:', error);
       return null;
     }
+  }
+
+  // Métodos para amigos
+  async getFriends(userId: string): Promise<any[]> {
+    const response = await fetch(
+      `http://localhost:3000/users/${userId}/friends`
+    );
+    return await response.json();
+  }
+
+  async getFriendRequests(userId: string): Promise<any[]> {
+    const response = await fetch(
+      `http://localhost:3000/users/${userId}/friend-requests`
+    );
+    return await response.json();
+  }
+
+  async sendFriendRequestByEmail(
+    userId: string,
+    friendEmail: string
+  ): Promise<void> {
+    await fetch(`http://localhost:3000/users/friend-request/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, friendEmail }),
+    });
+  }
+
+  async acceptFriendRequest(userId: string, friendId: string): Promise<void> {
+    await fetch(`http://localhost:3000/users/friend-request/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, friendId }),
+    });
+  }
+
+  async rejectFriendRequest(userId: string, friendId: string): Promise<void> {
+    await fetch(`http://localhost:3000/users/friend-request/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, friendId }),
+    });
   }
 }

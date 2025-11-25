@@ -40,9 +40,9 @@ export class SocketService {
     });
   }
 
-  // Unirse a una sala privada
-  joinPrivateChat(userId: string, receiverId: string) {
-    this.socket.emit('joinPrivateChat', { userId, receiverId });
+  // Unirse a una sala (privada o grupo)
+  joinChat(conversationId: string) {
+    this.socket.emit('joinChat', { conversationId });
   }
 
   // Escuchar eventos del servidor
@@ -58,36 +58,36 @@ export class SocketService {
     });
   }
 
-  // Obtener mensajes previos de una conversación
-  loadPreviousMessages(
-    userId: string,
-    receiverId: string
-  ): Observable<Message[]> {
-    return new Observable<Message[]>((subscriber) => {
-      const data = { userId, receiverId };
-      this.socket.emit('loadMessages', data);
-
-      this.socket.on('loadMessages', (messages: Message[]) => {
-        subscriber.next(messages);
-      });
-
-      return () => {
-        this.socket.off('loadMessages');
-      };
-    });
-  }
-
-  // Enviar un mensaje privado
-  sendMessage(senderId: string, receiverId: string, content: string) {
-    const message: Message = {
+  // Enviar un mensaje (privado o grupo)
+  sendMessage(senderId: string, content: string, conversationId?: string, receiverId?: string) {
+    const message: any = {
       sender_id: senderId,
-      receiver_id: receiverId,
       content: content,
       timestamp: new Date(),
     };
 
-    const roomId = this.generateRoomId(senderId, receiverId);
-    this.socket.emit('privateMessage', message);
+    if (conversationId) {
+      message.conversation_id = conversationId;
+    } else if (receiverId) {
+      message.receiver_id = receiverId;
+    }
+
+    this.socket.emit('sendMessage', message);
+  }
+
+  // Crear conversación (grupo o chat)
+  async createConversation(name: string, participants: string[], isGroup: boolean, admins: string[] = []): Promise<any> {
+    const response = await fetch(`${this.endPoint}/messages/conversations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, participants, isGroup, admins }),
+    });
+    return await response.json();
+  }
+
+  async getUserConversations(userId: string): Promise<any[]> {
+    const response = await fetch(`${this.endPoint}/messages/conversations/${userId}`);
+    return await response.json();
   }
 
   // Desconectar el socket
@@ -96,10 +96,5 @@ export class SocketService {
       this.socket.disconnect();
       console.log('🔌 Socket desconectado');
     }
-  }
-
-  // Generar un ID de sala único para dos usuarios
-  private generateRoomId(user1: string, user2: string): string {
-    return [user1, user2].sort().join('-'); // Asegura que la sala siempre tenga el mismo ID
   }
 }
