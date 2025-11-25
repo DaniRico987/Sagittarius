@@ -1,23 +1,22 @@
 // Variables - Dark Mode
-$primary-color: #bb86fc; // Light Purple (Material Dark Primary)
-$secondary-color: #03dac6; // Teal (Material Dark Secondary)
-$bg-gradient: linear-gradient(135deg, #121212 0%, #1f1b24 100%); // Very dark gray/purple
-$card-bg: rgba(30, 30, 30, 0.95); // Dark card background
-$text-color: #e0e0e0; // Light gray text
-$text-muted: #a0a0a0; // Muted gray text
-$input-bg: #2c2c2c; // Dark input background
+$primary-color: #bb86fc;
+$secondary-color: #03dac6;
+$bg-gradient: linear-gradient(135deg, #121212 0%, #1f1b24 100%);
+$card-bg: rgba(30, 30, 30, 0.95);
+$text-color: #e0e0e0;
+$text-muted: #a0a0a0;
+$input-bg: #2c2c2c;
 
 .login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: $bg-gradient;
+  background: var(--bg-gradient);
   padding: 20px;
   overflow: hidden;
   position: relative;
 
-  // Background shapes for depth
   &::before,
   &::after {
     content: '';
@@ -47,12 +46,36 @@ $input-bg: #2c2c2c; // Dark input background
   }
 }
 
+.theme-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-primary) !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.1);
+    border-color: var(--primary-color);
+  }
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
 .login-card {
   display: flex;
   width: 100%;
   max-width: 900px;
   height: 600px;
-  background: $card-bg;
+  background: var(--bg-card);
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   overflow: hidden;
@@ -60,7 +83,7 @@ $input-bg: #2c2c2c; // Dark input background
   opacity: 0;
   transform: translateY(30px);
   animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -68,7 +91,6 @@ $input-bg: #2c2c2c; // Dark input background
   }
 }
 
-// Left Section
 .login-form-section {
   flex: 1;
   padding: 60px;
@@ -88,13 +110,12 @@ $input-bg: #2c2c2c; // Dark input background
     h1 {
       font-size: 2.5rem;
       font-weight: 800;
-      color: $primary-color;
+      color: var(--primary-color);
       margin: 0;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     p {
-      color: $text-muted;
+      color: var(--text-secondary);
       margin-top: 10px;
       font-size: 1.1rem;
     }
@@ -109,16 +130,15 @@ $input-bg: #2c2c2c; // Dark input background
     width: 100%;
 
     mat-icon {
-      color: $primary-color;
+      color: var(--primary-color);
       margin-right: 10px;
     }
 
-    // Override Angular Material styles for dark mode
     ::ng-deep .mat-mdc-form-field {
       width: 100%;
 
       .mat-mdc-text-field-wrapper {
-        background-color: $input-bg !important;
+        background-color: var(--input-bg) !important;
         border-radius: 8px;
         padding: 0 12px;
       }
@@ -127,21 +147,19 @@ $input-bg: #2c2c2c; // Dark input background
         background-color: transparent !important;
       }
 
-      // Outline styling
       .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
-        border-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: var(--border-color) !important;
         border-width: 1px !important;
       }
 
-      // Hover state - neutralized (same as default)
       &:hover:not(.mat-focused) {
 
         .mdc-notched-outline__leading,
         .mdc-notched-outline__notch,
         .mdc-notched-outline__trailing {
-          border-color: rgba(255, 255, 255, 0.1) !important;
+          border-color: var(--border-color) !important;
           border-width: 1px !important;
         }
       }
@@ -151,46 +169,41 @@ $input-bg: #2c2c2c; // Dark input background
         .mdc-notched-outline__leading,
         .mdc-notched-outline__notch,
         .mdc-notched-outline__trailing {
-          border-color: $primary-color !important;
+          border-color: var(--primary-color) !important;
           border-width: 2px !important;
         }
 
         .mat-mdc-form-field-icon-prefix {
-          color: $primary-color !important;
+          color: var(--primary-color) !important;
         }
       }
 
-      // Input text
       .mat-mdc-input-element {
-        color: $text-color !important;
-        caret-color: $primary-color;
+        color: var(--text-primary) !important;
+        caret-color: var(--primary-color);
         padding: 12px 0;
       }
 
-      // Label/Placeholder
       .mdc-floating-label {
-        color: $text-muted !important;
+        color: var(--text-secondary) !important;
         top: 24px !important;
       }
 
       &.mat-focused .mdc-floating-label,
       &.mat-form-field-invalid .mdc-floating-label {
-        color: $primary-color !important;
+        color: var(--primary-color) !important;
       }
 
-      // Icon
       .mat-mdc-form-field-icon-prefix {
-        color: $text-muted;
+        color: var(--text-secondary);
         padding-right: 10px;
         align-self: center;
       }
 
-      // Error text
       .mat-mdc-form-field-error {
         color: #cf6679 !important;
       }
 
-      // Placeholder styling
       .mat-mdc-input-element::placeholder {
         color: rgba(255, 255, 255, 0.4) !important;
         opacity: 1;
@@ -204,7 +217,7 @@ $input-bg: #2c2c2c; // Dark input background
     margin-bottom: -10px;
 
     a {
-      color: $primary-color;
+      color: var(--primary-color);
       text-decoration: none;
       font-size: 0.9rem;
       font-weight: 500;
@@ -231,7 +244,7 @@ $input-bg: #2c2c2c; // Dark input background
       border-radius: 8px;
       text-transform: uppercase;
       transition: all 0.3s ease;
-      background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+      background: linear-gradient(135deg, var(--primary-color), lighten($primary-color, 10%));
       color: #fff;
 
       &:hover:not(:disabled) {
@@ -250,10 +263,10 @@ $input-bg: #2c2c2c; // Dark input background
 
     .register-link {
       text-align: center;
-      color: $text-muted;
+      color: var(--text-secondary);
 
       a {
-        color: $primary-color;
+        color: var(--primary-color);
         text-decoration: none;
         font-weight: 600;
         margin-left: 5px;
@@ -267,19 +280,17 @@ $input-bg: #2c2c2c; // Dark input background
   }
 }
 
-// Right Section
 .login-decorative-section {
   flex: 1;
-  background-color: #1a1a1a;
+  background-color: var(--bg-secondary);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   text-align: center;
   padding: 40px;
   overflow: hidden;
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 1px solid var(--border-color);
 
   @media (max-width: 768px) {
     display: none;
@@ -291,7 +302,6 @@ $input-bg: #2c2c2c; // Dark input background
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba($primary-color, 0.3));
     z-index: 1;
   }
 
@@ -304,19 +314,17 @@ $input-bg: #2c2c2c; // Dark input background
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 20px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-      color: $text-color;
+      color: var(--text-primary);
     }
 
     p {
       font-size: 1.2rem;
       opacity: 0.9;
-      color: $text-muted;
+      color: var(--text-secondary);
     }
   }
 }
 
-// Animations
 @keyframes slideUpFade {
   to {
     opacity: 1;
@@ -336,7 +344,6 @@ $input-bg: #2c2c2c; // Dark input background
   }
 }
 
-// Staggered Entrance for Form Elements
 .brand-header {
   animation: slideUpFade 0.6s 0.2s backwards;
 }

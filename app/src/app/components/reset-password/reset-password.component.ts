@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { NotificationService } from '../../service/notification.service';
+import { ThemeService } from '../../service/theme.service';
 import { MaterialModule } from '../../shared/material/material.module';
 
 @Component({
@@ -26,6 +27,7 @@ export class ResetPasswordComponent implements OnInit {
   constructor(
     public loginService: LoginService,
     private notificationService: NotificationService,
+    public themeService: ThemeService,
     @Inject(FormBuilder) formBuilder: FormBuilder,
     public router: Router
   ) {

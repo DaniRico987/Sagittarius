@@ -1,4 +1,16 @@
 <div class="login-wrapper">
+  <!-- Theme Toggle Button -->
+  <button
+    mat-icon-button
+    class="theme-toggle-btn"
+    (click)="themeService.toggleTheme()"
+    [attr.aria-label]="'Cambiar tema'"
+  >
+    <mat-icon>{{
+      themeService.isDarkTheme() ? "light_mode" : "dark_mode"
+    }}</mat-icon>
+  </button>
+
   <div class="login-card">
     <!-- Left Side: Form -->
     <div class="login-form-section">
@@ -13,9 +25,6 @@
             <mat-label>Correo electrónico</mat-label>
             <mat-icon matPrefix>email</mat-icon>
             <input matInput formControlName="email" type="email" />
-            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-              El correo es requerido
-            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="custom-field">
@@ -38,9 +47,6 @@
                 hidePassword ? "visibility_off" : "visibility"
               }}</mat-icon>
             </button>
-            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-              La contraseña es requerida
-            </mat-error>
           </mat-form-field>
         </div>
 

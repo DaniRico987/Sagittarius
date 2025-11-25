@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -19,6 +20,7 @@ import { UserChat } from '../../interface/user-chat.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateGroupDialogComponent } from '../create-group-dialog/create-group-dialog.component';
 import { FriendsComponent } from '../friends/friends.component';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-chat',
@@ -36,6 +38,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   conversations: any[] = [];
   selectedConversation: any = null;
   showFriends: boolean = false;
+  isMobile: boolean = false;
+  showSidebar: boolean = true;
 
   constructor(
     private socketService: SocketService,
@@ -51,6 +55,22 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.initializeChat();
     this.listenForMessages();
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
+
+  checkScreenSize() {
+    this.isMobile = window.innerWidth <= 768;
+    if (!this.isMobile) {
+      this.showSidebar = true;
+    } else {
+      // On mobile, show sidebar if no conversation is selected
+      this.showSidebar = !this.selectedConversation && !this.showFriends;
+    }
   }
 
   scrollToBottom() {
@@ -100,12 +120,25 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.messages = [];
 
     this.socketService.joinChat(conversation._id);
+
+    if (this.isMobile) {
+      this.showSidebar = false;
+    }
     // The socket will emit 'loadMessages' which we listen to
   }
 
   toggleFriends() {
     this.showFriends = !this.showFriends;
     this.selectedConversation = null;
+    if (this.isMobile && this.showFriends) {
+      this.showSidebar = false;
+    }
+  }
+
+  backToList() {
+    this.selectedConversation = null;
+    this.showFriends = false;
+    this.showSidebar = true;
   }
 
   openCreateGroupDialog() {
@@ -168,8 +201,25 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.socketService.disconnect();
   }
 
-  logout(): void {
-    this.loginService.logout();
+  logout() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Cerrar sesión',
+        message: '¿Estás seguro de que deseas cerrar sesión?',
+        confirmText: 'Cerrar sesión',
+        cancelText: 'Cancelar',
+        icon: 'logout',
+        confirmColor: 'warn',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loginService.logout();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   toggleTheme(): void {

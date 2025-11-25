@@ -1,0 +1,88 @@
+.confirmation-dialog {
+    padding: 0;
+    min-width: 300px;
+    max-width: 400px;
+
+    .dialog-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px 0;
+
+        .dialog-icon {
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+            color: var(--primary-color);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    }
+
+    mat-dialog-content {
+        padding: 16px 24px;
+
+        .dialog-message {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+    }
+
+    mat-dialog-actions {
+        padding: 12px 24px 20px;
+        gap: 12px;
+
+        .cancel-btn {
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: var(--hover-bg);
+                color: var(--text-primary);
+            }
+        }
+
+        .confirm-btn {
+            background-color: var(--primary-color) !important;
+            color: #ffffff !important;
+            transition: all 0.2s ease;
+
+            &:hover {
+                filter: brightness(1.1);
+                transform: translateY(-1px);
+            }
+        }
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .confirmation-dialog {
+        min-width: 280px;
+        max-width: 90vw;
+
+        .dialog-header {
+            padding: 16px 20px 0;
+        }
+
+        mat-dialog-content {
+            padding: 12px 20px;
+        }
+
+        mat-dialog-actions {
+            padding: 8px 20px 16px;
+            flex-direction: column-reverse;
+
+            button {
+                width: 100%;
+            }
+        }
+    }
+}

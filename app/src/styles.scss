@@ -106,8 +106,22 @@ body.dark-theme {
   }
 
   .mat-mdc-snack-bar-container {
-    background-color: var(--bg-card) !important;
-    color: var(--text-primary) !important;
+    &.mdc-snackbar--open {
+      display: flex;
+    }
+
+    .mdc-snackbar__surface {
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-color);
+    }
+
+    .mdc-snackbar__label {
+      color: var(--text-primary) !important;
+    }
+
+    .mat-mdc-snack-bar-action {
+      color: var(--primary-color) !important;
+    }
   }
 }
 
@@ -122,6 +136,7 @@ body.light-theme {
   .mat-mdc-dialog-container {
     background-color: var(--bg-card) !important;
     color: var(--text-primary) !important;
+    box-shadow: 0 4px 12px var(--shadow-color) !important;
   }
 
   .mdc-dialog__surface {
@@ -150,7 +165,54 @@ body.light-theme {
   }
 
   .mat-mdc-snack-bar-container {
-    background-color: var(--bg-card) !important;
-    color: var(--text-primary) !important;
+    &.mdc-snackbar--open {
+      display: flex;
+    }
+
+    .mdc-snackbar__surface {
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px var(--shadow-color) !important;
+    }
+
+    .mdc-snackbar__label {
+      color: var(--text-primary) !important;
+    }
+
+    .mat-mdc-snack-bar-action {
+      color: var(--primary-color) !important;
+    }
+  }
+}
+
+/* Custom Snackbar Panel Class - Maximum Specificity Override */
+body .custom-snackbar.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: transparent !important;
+  --mdc-snackbar-supporting-text-color: inherit;
+  --mat-snack-bar-button-color: inherit;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+
+  .mdc-snackbar__surface {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+    border: none !important;
+  }
+}
+
+/* Mobile Responsiveness for Snackbar */
+@media (max-width: 600px) {
+  .mat-mdc-snack-bar-container {
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+
+    .mdc-snackbar__surface {
+      width: 100%;
+      min-width: 0 !important;
+    }
   }
 }

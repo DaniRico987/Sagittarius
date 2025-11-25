@@ -35,4 +35,8 @@ export class ThemeService {
   isDarkMode(): boolean {
     return this.currentTheme === 'dark';
   }
+
+  isDarkTheme(): boolean {
+    return this.currentTheme === 'dark';
+  }
 }

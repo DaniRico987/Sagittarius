@@ -6,6 +6,11 @@
     background-color: var(--bg-card) !important;
     color: var(--text-primary) !important;
     border: 1px solid var(--border-color);
+
+    mat-card-title,
+    mat-card-content {
+      color: var(--text-primary) !important;
+    }
   }
 }
 
@@ -36,6 +41,15 @@ mat-list-item {
   margin-bottom: 10px;
   color: var(--text-primary) !important;
 
+  // Force internal text colors for Material Design components
+  ::ng-deep .mdc-list-item__primary-text {
+    color: var(--text-primary) !important;
+  }
+
+  ::ng-deep .mdc-list-item__secondary-text {
+    color: var(--text-secondary) !important;
+  }
+
   &:hover {
     background-color: var(--hover-bg);
   }
@@ -50,9 +64,37 @@ mat-list-item {
 
   &.mdc-tab--active {
     color: var(--primary-color) !important;
+
+    .mdc-tab__text-label {
+      color: var(--primary-color) !important;
+    }
   }
 }
 
 ::ng-deep .mat-mdc-tab-body-content {
   background-color: transparent !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .friends-container {
+    padding: 0;
+    height: 100%;
+    width: 100%;
+
+    mat-card {
+      border-radius: 0;
+      border: none;
+      box-shadow: none !important;
+      height: 100%;
+      background-color: transparent !important;
+    }
+  }
+
+  .add-friend-form {
+    button {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
 }

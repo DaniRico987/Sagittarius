@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { LoginService } from '../../service/login.service';
 import { NotificationService } from '../../service/notification.service';
+import { ThemeService } from '../../service/theme.service';
 import { responseRegister } from '../../interface/user-register-interface';
 import { Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
@@ -27,6 +28,7 @@ export class RegisterComponent {
   constructor(
     public loginService: LoginService,
     private notificationService: NotificationService,
+    public themeService: ThemeService,
     @Inject(FormBuilder) formBuilder: FormBuilder,
     public router: Router
   ) {

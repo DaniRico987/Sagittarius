@@ -1,4 +1,16 @@
 <div class="register-wrapper">
+  <!-- Theme Toggle Button -->
+  <button
+    mat-icon-button
+    class="theme-toggle-btn"
+    (click)="themeService.toggleTheme()"
+    [attr.aria-label]="'Cambiar tema'"
+  >
+    <mat-icon>{{
+      themeService.isDarkTheme() ? "light_mode" : "dark_mode"
+    }}</mat-icon>
+  </button>
+
   <div class="register-card">
     <!-- Left Side: Form -->
     <div class="register-form-section">
@@ -18,9 +30,6 @@
               type="text"
               placeholder="Tu nombre completo"
             />
-            <mat-error *ngIf="registerForm.get('name')?.hasError('required')">
-              El nombre es requerido
-            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="custom-field">
@@ -32,9 +41,6 @@
               type="email"
               placeholder="ejemplo@correo.com"
             />
-            <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
-              El correo es requerido
-            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="custom-field">
@@ -57,11 +63,6 @@
                 hidePassword ? "visibility_off" : "visibility"
               }}</mat-icon>
             </button>
-            <mat-error
-              *ngIf="registerForm.get('password')?.hasError('required')"
-            >
-              La contraseña es requerida
-            </mat-error>
           </mat-form-field>
         </div>
 

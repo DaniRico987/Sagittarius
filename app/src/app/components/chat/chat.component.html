@@ -1,6 +1,6 @@
 <div class="main-container">
   <!-- Sidebar -->
-  <div class="sidebar">
+  <div class="sidebar" [class.hidden-mobile]="!showSidebar">
     <div class="sidebar-header">
       <h3>Chats</h3>
       <div class="actions">
@@ -50,13 +50,24 @@
   </div>
 
   <!-- Main Content -->
-  <div class="content-area">
+  <div class="content-area" [class.hidden-mobile]="showSidebar">
     <!-- Friends View -->
-    <app-friends *ngIf="showFriends"></app-friends>
+    <div *ngIf="showFriends" class="friends-wrapper">
+      <div class="mobile-header" *ngIf="isMobile">
+        <button mat-icon-button (click)="backToList()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>Amigos</span>
+      </div>
+      <app-friends></app-friends>
+    </div>
 
     <!-- Chat View -->
     <mat-card class="chat-card" *ngIf="selectedConversation && !showFriends">
       <mat-card-header class="chat-header">
+        <button mat-icon-button (click)="backToList()" *ngIf="isMobile">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
         <mat-card-title>
           <mat-icon>{{
             selectedConversation.isGroup ? "group" : "person"
