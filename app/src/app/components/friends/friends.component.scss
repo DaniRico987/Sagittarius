@@ -98,3 +98,13 @@ mat-list-item {
     }
   }
 }
+
+::ng-deep [matListItemMeta] {
+  display: flex !important;
+  align-items: center !important;
+  align-self: center !important;
+  gap: 8px;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  height: auto !important;
+}

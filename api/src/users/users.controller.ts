@@ -39,6 +39,23 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @Post('friend-request/email')
+  async sendFriendRequestByEmail(
+    @Body() body: { userId: string; friendEmail: string },
+  ) {
+    return this.usersService.sendFriendRequestByEmail(
+      body.userId,
+      body.friendEmail,
+    );
+  }
+
+  @Post('friend-request/accept')
+  async acceptFriendRequest(
+    @Body() body: { userId: string; friendId: string },
+  ) {
+    return this.usersService.acceptFriendRequest(body.userId, body.friendId);
+  }
+
   @Post('friend-request/reject')
   async rejectFriendRequest(
     @Body() body: { userId: string; friendId: string },

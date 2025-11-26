@@ -9,7 +9,7 @@ import { Message } from '../interface/message.interface';
 })
 export class SocketService {
   private socket!: Socket;
-  private endPoint: string = 'http://localhost:3000';
+  private endPoint: string = '/';
 
   constructor(private loginService: LoginService) {}
 
@@ -59,7 +59,12 @@ export class SocketService {
   }
 
   // Enviar un mensaje (privado o grupo)
-  sendMessage(senderId: string, content: string, conversationId?: string, receiverId?: string) {
+  sendMessage(
+    senderId: string,
+    content: string,
+    conversationId?: string,
+    receiverId?: string
+  ) {
     const message: any = {
       sender_id: senderId,
       content: content,
@@ -76,7 +81,12 @@ export class SocketService {
   }
 
   // Crear conversación (grupo o chat)
-  async createConversation(name: string, participants: string[], isGroup: boolean, admins: string[] = []): Promise<any> {
+  async createConversation(
+    name: string,
+    participants: string[],
+    isGroup: boolean,
+    admins: string[] = []
+  ): Promise<any> {
     const response = await fetch(`${this.endPoint}/messages/conversations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -86,7 +96,9 @@ export class SocketService {
   }
 
   async getUserConversations(userId: string): Promise<any[]> {
-    const response = await fetch(`${this.endPoint}/messages/conversations/${userId}`);
+    const response = await fetch(
+      `${this.endPoint}/messages/conversations/${userId}`
+    );
     return await response.json();
   }
 

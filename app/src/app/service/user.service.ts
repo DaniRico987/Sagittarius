@@ -45,16 +45,12 @@ export class UserService {
 
   // Métodos para amigos
   async getFriends(userId: string): Promise<any[]> {
-    const response = await fetch(
-      `http://localhost:3000/users/${userId}/friends`
-    );
+    const response = await fetch(`/users/${userId}/friends`);
     return await response.json();
   }
 
   async getFriendRequests(userId: string): Promise<any[]> {
-    const response = await fetch(
-      `http://localhost:3000/users/${userId}/friend-requests`
-    );
+    const response = await fetch(`/users/${userId}/friend-requests`);
     return await response.json();
   }
 
@@ -62,15 +58,18 @@ export class UserService {
     userId: string,
     friendEmail: string
   ): Promise<void> {
-    await fetch(`http://localhost:3000/users/friend-request/email`, {
+    const response = await fetch(`/users/friend-request/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendEmail }),
     });
+    if (!response.ok) {
+      throw { status: response.status };
+    }
   }
 
   async acceptFriendRequest(userId: string, friendId: string): Promise<void> {
-    await fetch(`http://localhost:3000/users/friend-request/accept`, {
+    await fetch(`/users/friend-request/accept`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendId }),
@@ -78,7 +77,7 @@ export class UserService {
   }
 
   async rejectFriendRequest(userId: string, friendId: string): Promise<void> {
-    await fetch(`http://localhost:3000/users/friend-request/reject`, {
+    await fetch(`/users/friend-request/reject`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendId }),

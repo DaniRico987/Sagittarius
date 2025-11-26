@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { UserService } from '../../service/user.service';
 import { UserChat } from '../../interface/user-chat.interface';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-friends',
@@ -32,7 +33,10 @@ export class FriendsComponent implements OnInit {
   currentUser: UserChat | null = null;
   newFriendEmail: string = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.userService.getUserName();
@@ -64,9 +68,17 @@ export class FriendsComponent implements OnInit {
           this.newFriendEmail
         );
         this.newFriendEmail = '';
-        alert('Solicitud enviada');
-      } catch (error) {
-        alert('Error al enviar solicitud');
+        this.notificationService.success('Solicitud enviada correctamente');
+      } catch (error: any) {
+        if (error.status === 409) {
+          this.notificationService.warning(
+            'Ya has enviado una solicitud a este usuario'
+          );
+        } else if (error.status === 404) {
+          this.notificationService.error('Usuario no encontrado');
+        } else {
+          this.notificationService.error('Error al enviar solicitud');
+        }
       }
     }
   }

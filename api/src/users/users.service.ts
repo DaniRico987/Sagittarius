@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../schemas/user.schema';
@@ -63,11 +68,23 @@ export class UsersService {
       (req) => req.from.toString() === userId,
     );
     if (existingRequest) {
-      throw new Error('Solicitud ya enviada');
+      throw new ConflictException('Solicitud ya enviada');
     }
 
     friend.friendRequests.push({ from: userId as any, status: 'pending' });
     await friend.save();
+  }
+
+  // Enviar solicitud de amistad por email
+  async sendFriendRequestByEmail(
+    userId: string,
+    friendEmail: string,
+  ): Promise<void> {
+    const friend = await this.findByEmail(friendEmail);
+    if (!friend) {
+      throw new Error('Usuario con este correo no encontrado');
+    }
+    await this.sendFriendRequest(userId, friend._id.toString());
   }
 
   // Aceptar solicitud de amistad
