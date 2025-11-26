@@ -96,9 +96,29 @@
               {{ message.sender_id.name || "Usuario" }}
             </div>
             <span class="message-text">{{ message.content }}</span>
-            <span class="timestamp">{{
-              message.timestamp | date : "shortTime"
-            }}</span>
+            <span class="timestamp">
+              {{ message.timestamp | date : "shortTime" }}
+              <!-- Message status checkmarks (only for sent messages) -->
+              <span
+                *ngIf="
+                  (message.sender_id?._id || message.sender_id) === user.id
+                "
+                class="status-icon"
+                [ngClass]="{
+                  'status-read': message.status === 'read',
+                  'status-delivered': message.status === 'delivered',
+                  'status-sent': message.status === 'sent'
+                }"
+              >
+                <mat-icon *ngIf="message.status === 'sent'">done</mat-icon>
+                <mat-icon
+                  *ngIf="
+                    message.status === 'delivered' || message.status === 'read'
+                  "
+                  >done_all</mat-icon
+                >
+              </span>
+            </span>
           </div>
         </div>
       </mat-card-content>

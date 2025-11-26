@@ -103,8 +103,6 @@ export class MessagesService {
     userId: string,
     receiverId: string,
   ): Promise<Message[]> {
-    // ... existing logic if needed, or redirect to getMessagesByConversation if we find a conversation
-    // For now keeping it as is but it might be better to find the conversation between these two
     return await this.messageModel
       .find({
         $or: [
@@ -114,5 +112,72 @@ export class MessagesService {
       })
       .sort({ timestamp: 1 })
       .exec();
+  }
+
+  // Mark messages as delivered
+  async markAsDelivered(messageIds: string[]): Promise<void> {
+    await this.messageModel.updateMany(
+      { _id: { $in: messageIds }, status: 'sent' },
+      {
+        status: 'delivered',
+        deliveredAt: new Date(),
+      },
+    );
+  }
+
+  // Mark messages as read
+  async markAsRead(conversationId: string, userId: string): Promise<Message[]> {
+    const messages = await this.messageModel.find({
+      conversation_id: conversationId,
+      sender_id: { $ne: userId },
+      status: { $in: ['sent', 'delivered'] },
+    });
+
+    await this.messageModel.updateMany(
+      {
+        conversation_id: conversationId,
+        sender_id: { $ne: userId },
+        status: { $in: ['sent', 'delivered'] },
+      },
+      {
+        status: 'read',
+        readAt: new Date(),
+      },
+    );
+
+    return messages;
+  }
+
+  // Toggle reaction on a message
+  async toggleReaction(
+    messageId: string,
+    userId: string,
+    userName: string,
+    emoji: string,
+  ): Promise<Message> {
+    const message = await this.messageModel.findById(messageId);
+
+    if (!message) {
+      throw new Error('Mensaje no encontrado');
+    }
+
+    const existingReactionIndex = message.reactions.findIndex(
+      (r) => r.userId.toString() === userId && r.emoji === emoji,
+    );
+
+    if (existingReactionIndex > -1) {
+      // Remove reaction if already exists
+      message.reactions.splice(existingReactionIndex, 1);
+    } else {
+      // Add new reaction
+      message.reactions.push({
+        emoji,
+        userId: userId as any,
+        userName,
+        createdAt: new Date(),
+      });
+    }
+
+    return await message.save();
   }
 }

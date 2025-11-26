@@ -32,9 +32,13 @@ export class MessagesGateway {
     this.logger.log(`✅ Usuario unido a la sala ${data.conversationId}`);
 
     try {
-      const messages = await this.messagesService.getMessagesByConversation(data.conversationId);
+      const messages = await this.messagesService.getMessagesByConversation(
+        data.conversationId,
+      );
       client.emit('loadMessages', messages);
-      this.logger.log(`📜 Mensajes previos enviados a la sala ${data.conversationId}`);
+      this.logger.log(
+        `📜 Mensajes previos enviados a la sala ${data.conversationId}`,
+      );
     } catch (error) {
       this.logger.error('🚨 Error al cargar mensajes previos', error);
     }
@@ -43,21 +47,32 @@ export class MessagesGateway {
   @SubscribeMessage('sendMessage')
   async handleMessage(@MessageBody() messageDto: CreateMessageDto) {
     try {
-      if (typeof messageDto !== 'object' || !messageDto.content || (!messageDto.conversation_id && !messageDto.receiver_id)) {
+      if (
+        typeof messageDto !== 'object' ||
+        !messageDto.content ||
+        (!messageDto.conversation_id && !messageDto.receiver_id)
+      ) {
         this.logger.warn('❌ Mensaje inválido recibido', messageDto);
         return;
       }
 
       const savedMessage = await this.messagesService.createMessage(messageDto);
-      
+
       // If conversation_id exists, emit to that room
       if (messageDto.conversation_id) {
-        this.server.to(messageDto.conversation_id).emit('newMessage', savedMessage);
-        this.logger.log(`📩 Mensaje enviado a la sala ${messageDto.conversation_id}`);
+        this.server
+          .to(messageDto.conversation_id)
+          .emit('newMessage', savedMessage);
+        this.logger.log(
+          `📩 Mensaje enviado a la sala ${messageDto.conversation_id}`,
+        );
       } else if (messageDto.sender_id && messageDto.receiver_id) {
-         // Legacy/Direct support
-         const room = this.getRoomId(messageDto.sender_id, messageDto.receiver_id);
-         this.server.to(room).emit('privateMessage', savedMessage); // Keeping 'privateMessage' for legacy
+        // Legacy/Direct support
+        const room = this.getRoomId(
+          messageDto.sender_id,
+          messageDto.receiver_id,
+        );
+        this.server.to(room).emit('privateMessage', savedMessage); // Keeping 'privateMessage' for legacy
       }
     } catch (error) {
       this.logger.error('🚨 Error al manejar el mensaje', error);
@@ -70,12 +85,57 @@ export class MessagesGateway {
     @ConnectedSocket() client: any,
     @MessageBody() data: { userId: string; receiverId: string },
   ) {
-     const room = this.getRoomId(data.userId, data.receiverId);
-     client.join(room);
-     // ... load messages logic if needed
+    const room = this.getRoomId(data.userId, data.receiverId);
+    client.join(room);
+    // ... load messages logic if needed
   }
 
   private getRoomId(userId: string, receiverId: string): string {
     return [userId, receiverId].sort().join('-');
+  }
+
+  @SubscribeMessage('messageDelivered')
+  async handleMessageDelivered(@MessageBody() data: { messageIds: string[] }) {
+    try {
+      await this.messagesService.markAsDelivered(data.messageIds);
+
+      // Notify sender about delivery
+      for (const messageId of data.messageIds) {
+        this.server.emit('statusUpdated', {
+          messageId,
+          status: 'delivered',
+        });
+      }
+
+      this.logger.log(`✓✓ Mensajes marcados como entregados`);
+    } catch (error) {
+      this.logger.error('Error al marcar mensajes como entregados', error);
+    }
+  }
+
+  @SubscribeMessage('messagesRead')
+  async handleMessagesRead(
+    @MessageBody() data: { conversationId: string; userId: string },
+  ) {
+    try {
+      const messages = await this.messagesService.markAsRead(
+        data.conversationId,
+        data.userId,
+      );
+
+      // Notify senders about read status
+      for (const message of messages) {
+        this.server.emit('statusUpdated', {
+          messageId: (message as any)._id,
+          status: 'read',
+        });
+      }
+
+      this.logger.log(
+        `✓✓ Mensajes marcados como leídos en ${data.conversationId}`,
+      );
+    } catch (error) {
+      this.logger.error('Error al marcar mensajes como leídos', error);
+    }
   }
 }

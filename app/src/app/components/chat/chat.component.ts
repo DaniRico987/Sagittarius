@@ -145,6 +145,12 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.socketService.joinChat(conversation._id);
 
+    // Mark messages as read when opening conversation
+    (this.socketService as any).socket.emit('messagesRead', {
+      conversationId: conversation._id,
+      userId: this.user.id,
+    });
+
     if (this.isMobile) {
       this.showSidebar = false;
     }
@@ -210,6 +216,18 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.socketService.onEvent<Message[]>('loadMessages').subscribe((msgs) => {
       this.messages = msgs;
       this.scrollToBottom();
+
+      // Mark messages as delivered when loaded
+      const messageIds = msgs
+        .filter((m) => m.sender_id !== this.user.id && m.status === 'sent')
+        .map((m) => m._id)
+        .filter((id) => id) as string[];
+
+      if (messageIds.length > 0) {
+        (this.socketService as any).socket.emit('messageDelivered', {
+          messageIds,
+        });
+      }
     });
 
     this.socketService.onEvent<Message>('newMessage').subscribe((message) => {
@@ -219,6 +237,13 @@ export class ChatComponent implements OnInit, OnDestroy {
       ) {
         this.messages.push(message);
         this.scrollToBottom();
+
+        // Mark as delivered immediately if conversation is open
+        if (message.sender_id !== this.user.id && message._id) {
+          (this.socketService as any).socket.emit('messageDelivered', {
+            messageIds: [message._id],
+          });
+        }
       }
 
       // Update last message in conversation list
@@ -237,6 +262,19 @@ export class ChatComponent implements OnInit, OnDestroy {
       if (!conversationExists) {
         // Reload conversations to include the new one
         this.loadConversations();
+      }
+    });
+
+    // Listen for status updates
+    this.socketService.onEvent('statusUpdated').subscribe((data: any) => {
+      const message = this.messages.find((m) => m._id === data.messageId);
+      if (message) {
+        message.status = data.status;
+        if (data.status === 'delivered') {
+          message.deliveredAt = new Date();
+        } else if (data.status === 'read') {
+          message.readAt = new Date();
+        }
       }
     });
 

@@ -8,7 +8,7 @@ import { Message } from '../interface/message.interface';
   providedIn: 'root',
 })
 export class SocketService {
-  private socket!: Socket;
+  public socket!: Socket;
   private endPoint: string = '/';
 
   constructor(private loginService: LoginService) {}
