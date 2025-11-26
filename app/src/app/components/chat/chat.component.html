@@ -26,7 +26,7 @@
         <mat-icon matListItemIcon>{{
           conv.isGroup ? "group" : "person"
         }}</mat-icon>
-        <div matListItemTitle>{{ conv.name || "Chat" }}</div>
+        <div matListItemTitle>{{ getConversationName(conv) }}</div>
         <div matListItemLine class="last-msg" *ngIf="conv.lastMessage">
           {{ conv.lastMessage.content | slice : 0 : 20 }}...
         </div>
@@ -72,7 +72,7 @@
           <mat-icon>{{
             selectedConversation.isGroup ? "group" : "person"
           }}</mat-icon>
-          {{ selectedConversation.name || "Chat" }}
+          {{ getConversationName(selectedConversation) }}
         </mat-card-title>
       </mat-card-header>
 
@@ -81,8 +81,9 @@
           <div
             *ngFor="let message of messages"
             [ngClass]="{
-              sent: message.sender_id === user.id,
-              received: message.sender_id !== user.id
+              sent: (message.sender_id?._id || message.sender_id) === user.id,
+              received:
+                (message.sender_id?._id || message.sender_id) !== user.id
             }"
             class="message-bubble"
           >
@@ -103,20 +104,19 @@
       </mat-card-content>
 
       <mat-card-actions class="input-area">
-        <mat-form-field appearance="outline" class="full-width">
+        <div *ngIf="!canChat" class="blocked-message">
+          No puedes enviar mensajes a este usuario porque no son amigos.
+        </div>
+        <mat-form-field appearance="outline" class="full-width" *ngIf="canChat">
           <mat-label>Escribe un mensaje...</mat-label>
           <input
             matInput
             [(ngModel)]="messageText"
             (keyup.enter)="sendMessage()"
+            placeholder="Escribe un mensaje..."
             autocomplete="off"
           />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="sendMessage()"
-            [disabled]="!messageText.trim()"
-          >
+          <button mat-icon-button matSuffix (click)="sendMessage()">
             <mat-icon>send</mat-icon>
           </button>
         </mat-form-field>

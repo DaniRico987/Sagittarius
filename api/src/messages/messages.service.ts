@@ -10,13 +10,40 @@ export class MessagesService {
   constructor(
     @InjectModel('Message') private messageModel: Model<Message>,
     @InjectModel('Conversation') private conversationModel: Model<Conversation>,
+    @InjectModel('User') private userModel: Model<any>,
   ) {}
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
     try {
       // Support both conversation_id and legacy direct messaging (optional)
-      if (!createMessageDto.conversation_id && (!createMessageDto.sender_id || !createMessageDto.receiver_id)) {
-         throw new Error('Falta conversation_id o sender/receiver');
+      if (
+        !createMessageDto.conversation_id &&
+        (!createMessageDto.sender_id || !createMessageDto.receiver_id)
+      ) {
+        throw new Error('Falta conversation_id o sender/receiver');
+      }
+
+      // Check friendship for 1-on-1 conversations
+      if (createMessageDto.conversation_id) {
+        const conversation = await this.conversationModel.findById(
+          createMessageDto.conversation_id,
+        );
+        if (conversation && !conversation.isGroup) {
+          const senderId = createMessageDto.sender_id;
+          // Find the other participant
+          const otherParticipantId = conversation.participants.find(
+            (p) => p.toString() !== senderId.toString(),
+          );
+
+          if (otherParticipantId) {
+            const sender = await this.userModel.findById(senderId);
+            if (sender && !sender.friends.includes(otherParticipantId)) {
+              throw new Error(
+                'No puedes enviar mensajes a este usuario porque no son amigos.',
+              );
+            }
+          }
+        }
       }
 
       const newMessage = new this.messageModel(createMessageDto);
@@ -24,9 +51,12 @@ export class MessagesService {
 
       // Update last message in conversation
       if (createMessageDto.conversation_id) {
-        await this.conversationModel.findByIdAndUpdate(createMessageDto.conversation_id, {
-          lastMessage: savedMessage._id,
-        });
+        await this.conversationModel.findByIdAndUpdate(
+          createMessageDto.conversation_id,
+          {
+            lastMessage: savedMessage._id,
+          },
+        );
       }
 
       return savedMessage;
@@ -36,7 +66,12 @@ export class MessagesService {
     }
   }
 
-  async createConversation(name: string, participants: string[], isGroup: boolean, admins: string[] = []): Promise<Conversation> {
+  async createConversation(
+    name: string,
+    participants: string[],
+    isGroup: boolean,
+    admins: string[] = [],
+  ): Promise<Conversation> {
     const newConversation = new this.conversationModel({
       name,
       participants,
@@ -64,17 +99,20 @@ export class MessagesService {
   }
 
   // Legacy support or direct chat lookup
-  async getConversation(userId: string, receiverId: string): Promise<Message[]> {
+  async getConversation(
+    userId: string,
+    receiverId: string,
+  ): Promise<Message[]> {
     // ... existing logic if needed, or redirect to getMessagesByConversation if we find a conversation
     // For now keeping it as is but it might be better to find the conversation between these two
     return await this.messageModel
-        .find({
-          $or: [
-            { sender_id: userId, receiver_id: receiverId },
-            { sender_id: receiverId, receiver_id: userId },
-          ],
-        })
-        .sort({ timestamp: 1 })
-        .exec();
+      .find({
+        $or: [
+          { sender_id: userId, receiver_id: receiverId },
+          { sender_id: receiverId, receiver_id: userId },
+        ],
+      })
+      .sort({ timestamp: 1 })
+      .exec();
   }
 }

@@ -63,6 +63,14 @@ export class UsersController {
     return this.usersService.rejectFriendRequest(body.userId, body.friendId);
   }
 
+  @Delete(':userId/friends/:friendId')
+  async removeFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    return this.usersService.removeFriend(userId, friendId);
+  }
+
   @Get(':id/friends')
   async getFriends(@Param('id') id: string) {
     return this.usersService.getFriends(id);

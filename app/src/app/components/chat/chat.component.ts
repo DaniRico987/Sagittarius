@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
@@ -12,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { SocketService } from '../../service/socket.service';
 import { LoginService } from '../../service/login.service';
 import { ThemeService } from '../../service/theme.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MaterialModule } from '../../shared/material/material.module';
 import { Message } from '../../interface/message.interface';
 import { UserService } from '../../service/user.service';
@@ -40,6 +39,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   showFriends: boolean = false;
   isMobile: boolean = false;
   showSidebar: boolean = true;
+  canChat: boolean = true;
+  myFriendIds: string[] = [];
 
   constructor(
     private socketService: SocketService,
@@ -47,6 +48,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     private userService: UserService,
     public themeService: ThemeService,
     private router: Router,
+    private route: ActivatedRoute,
     private dialog: MatDialog
   ) {}
 
@@ -56,6 +58,25 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.initializeChat();
     this.listenForMessages();
     this.checkScreenSize();
+    this.loadFriendsList();
+
+    // Listen for query params to handle friend selection
+    this.route.queryParams.subscribe((params) => {
+      if (params['friendId']) {
+        this.handleFriendSelection(params['friendId']);
+      } else if (params['conversationId']) {
+        this.selectConversationById(params['conversationId']);
+      }
+    });
+  }
+
+  async loadFriendsList() {
+    try {
+      const friends = await this.userService.getFriends(this.user.id);
+      this.myFriendIds = friends.map((f: any) => f._id);
+    } catch (error) {
+      console.error('Error loading friends', error);
+    }
   }
 
   @HostListener('window:resize', ['$event'])
@@ -101,6 +122,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private initializeChat() {
     this.socketService.connect();
+    this.socketService.joinUserRoom(this.user.id);
     this.loadConversations();
   }
 
@@ -119,12 +141,35 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.showFriends = false;
     this.messages = [];
 
+    this.checkCanChat(conversation);
+
     this.socketService.joinChat(conversation._id);
 
     if (this.isMobile) {
       this.showSidebar = false;
     }
     // The socket will emit 'loadMessages' which we listen to
+  }
+
+  checkCanChat(conversation: any) {
+    if (conversation.isGroup) {
+      this.canChat = true;
+      return;
+    }
+
+    const otherParticipant = conversation.participants.find(
+      (p: any) => p._id !== this.user.id
+    );
+
+    if (otherParticipant) {
+      // Refresh friends list to be sure
+      this.userService.getFriends(this.user.id).then((friends) => {
+        this.myFriendIds = friends.map((f: any) => f._id);
+        this.canChat = this.myFriendIds.includes(otherParticipant._id);
+      });
+    } else {
+      this.canChat = false;
+    }
   }
 
   toggleFriends() {
@@ -175,7 +220,39 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.messages.push(message);
         this.scrollToBottom();
       }
-      // Update last message in conversation list logic could go here
+
+      // Update last message in conversation list
+      const conv = this.conversations.find(
+        (c) => c._id === message.conversation_id
+      );
+      if (conv) {
+        conv.lastMessage = message;
+      }
+
+      // Check if this message is from a conversation we don't have yet
+      const conversationExists = this.conversations.some(
+        (conv) => conv._id === message.conversation_id
+      );
+
+      if (!conversationExists) {
+        // Reload conversations to include the new one
+        this.loadConversations();
+      }
+    });
+
+    // Listen for friend removed event
+    this.socketService.onEvent('friendRemoved').subscribe((data: any) => {
+      this.loadFriendsList();
+
+      if (this.selectedConversation && !this.selectedConversation.isGroup) {
+        const otherParticipant = this.selectedConversation.participants.find(
+          (p: any) => p._id !== this.user.id
+        );
+
+        if (otherParticipant && otherParticipant._id === data.friendId) {
+          this.canChat = false;
+        }
+      }
     });
 
     // Legacy support if needed
@@ -195,6 +272,57 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.selectedConversation._id
     );
     this.messageText = '';
+  }
+
+  private async handleFriendSelection(friendId: string) {
+    this.showFriends = false;
+
+    const existingConv = this.conversations.find(
+      (conv) =>
+        !conv.isGroup && conv.participants.some((p: any) => p._id === friendId)
+    );
+
+    if (existingConv) {
+      this.selectConversation(existingConv);
+    } else {
+      const participants = [this.user.id, friendId];
+      await this.socketService.createConversation('', participants, false, []);
+      await this.loadConversations();
+
+      const newConv = this.conversations.find(
+        (conv) =>
+          !conv.isGroup &&
+          conv.participants.some((p: any) => p._id === friendId)
+      );
+      if (newConv) {
+        this.selectConversation(newConv);
+      }
+    }
+
+    this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+  }
+
+  private selectConversationById(conversationId: string) {
+    const conv = this.conversations.find((c) => c._id === conversationId);
+    if (conv) {
+      this.selectConversation(conv);
+      this.showFriends = false;
+    }
+
+    this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+  }
+
+  getConversationName(conversation: any): string {
+    if (conversation.isGroup) {
+      return conversation.name || 'Grupo';
+    }
+
+    // For 1-on-1 chats, get the other participant's name
+    const otherParticipant = conversation.participants?.find(
+      (p: any) => p._id !== this.user.id
+    );
+
+    return otherParticipant?.name || 'Chat';
   }
 
   ngOnDestroy() {

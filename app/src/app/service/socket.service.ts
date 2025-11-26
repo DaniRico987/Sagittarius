@@ -45,6 +45,11 @@ export class SocketService {
     this.socket.emit('joinChat', { conversationId });
   }
 
+  // Unirse a la sala personal del usuario
+  joinUserRoom(userId: string) {
+    this.socket.emit('joinUserRoom', userId);
+  }
+
   // Escuchar eventos del servidor
   onEvent<T>(event: string): Observable<T> {
     return new Observable<T>((subscriber) => {
@@ -87,7 +92,7 @@ export class SocketService {
     isGroup: boolean,
     admins: string[] = []
   ): Promise<any> {
-    const response = await fetch(`${this.endPoint}/messages/conversations`, {
+    const response = await fetch(`/messages/conversations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, participants, isGroup, admins }),
@@ -96,9 +101,7 @@ export class SocketService {
   }
 
   async getUserConversations(userId: string): Promise<any[]> {
-    const response = await fetch(
-      `${this.endPoint}/messages/conversations/${userId}`
-    );
+    const response = await fetch(`/messages/conversations/${userId}`);
     return await response.json();
   }
 

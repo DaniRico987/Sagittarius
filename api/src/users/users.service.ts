@@ -10,9 +10,34 @@ import { User } from '../schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+import { UsersGateway } from './users.gateway';
+
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<User>) {}
+  constructor(
+    @InjectModel('User') private userModel: Model<User>,
+    private usersGateway: UsersGateway,
+  ) {}
+
+  // ... (other methods)
+
+  // Eliminar amigo
+  async removeFriend(userId: string, friendId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    const friend = await this.userModel.findById(friendId);
+
+    if (!user || !friend) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    user.friends = user.friends.filter((id) => id.toString() !== friendId);
+    friend.friends = friend.friends.filter((id) => id.toString() !== userId);
+
+    await user.save();
+    await friend.save();
+
+    this.usersGateway.notifyFriendRemoved(userId, friendId);
+  }
 
   // Crear un usuario
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -102,6 +127,11 @@ export class UsersService {
 
     if (requestIndex === -1) {
       throw new Error('Solicitud no encontrada');
+    }
+
+    // Check if already friends to prevent duplicates
+    if (user.friends.includes(friendId as any)) {
+      throw new ConflictException('Ya son amigos');
     }
 
     user.friendRequests[requestIndex].status = 'accepted';

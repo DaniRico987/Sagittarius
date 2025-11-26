@@ -113,11 +113,21 @@
   }
 
   .input-area {
-    padding: 10px 20px;
-    background-color: var(--bg-card);
+    padding: 16px;
+    background-color: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
 
-    .full-width {
+    .blocked-message {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      color: #f44336; // Red color for warning
+      font-weight: 500;
+      background-color: rgba(244, 67, 54, 0.1);
+      border-radius: 4px;
+    }
+
+    mat-form-field {
       width: 100%;
     }
   }

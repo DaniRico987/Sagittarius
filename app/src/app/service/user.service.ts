@@ -69,18 +69,32 @@ export class UserService {
   }
 
   async acceptFriendRequest(userId: string, friendId: string): Promise<void> {
-    await fetch(`/users/friend-request/accept`, {
+    const response = await fetch(`/users/friend-request/accept`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendId }),
     });
+    if (!response.ok) {
+      throw { status: response.status };
+    }
   }
 
   async rejectFriendRequest(userId: string, friendId: string): Promise<void> {
-    await fetch(`/users/friend-request/reject`, {
+    const response = await fetch(`/users/friend-request/reject`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, friendId }),
     });
+    if (!response.ok) {
+      throw { status: response.status };
+    }
+  }
+  async removeFriend(userId: string, friendId: string): Promise<void> {
+    const response = await fetch(`/users/${userId}/friends/${friendId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw { status: response.status };
+    }
   }
 }

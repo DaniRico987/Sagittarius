@@ -11,6 +11,25 @@
               <mat-icon matListItemIcon>person</mat-icon>
               <div matListItemTitle>{{ friend.name }}</div>
               <div matListItemLine>{{ friend.email }}</div>
+              <div matListItemMeta>
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="startChat(friend._id)"
+                  matTooltip="Enviar mensaje"
+                >
+                  <mat-icon>chat</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="deleteFriend(friend)"
+                  matTooltip="Eliminar amigo"
+                  [disabled]="isLoading"
+                >
+                  <mat-icon>person_remove</mat-icon>
+                </button>
+              </div>
             </mat-list-item>
             <p *ngIf="friends.length === 0" class="empty-msg">
               No tienes amigos aún.
@@ -29,6 +48,7 @@
                   mat-icon-button
                   color="primary"
                   (click)="acceptRequest(req.from._id)"
+                  [disabled]="isLoading"
                 >
                   <mat-icon>check</mat-icon>
                 </button>
@@ -36,6 +56,7 @@
                   mat-icon-button
                   color="warn"
                   (click)="rejectRequest(req.from._id)"
+                  [disabled]="isLoading"
                 >
                   <mat-icon>close</mat-icon>
                 </button>
@@ -51,17 +72,13 @@
           <div class="add-friend-form">
             <mat-form-field appearance="outline" class="dense-3">
               <mat-label>Email del Usuario</mat-label>
-              <input
-                matInput
-                [(ngModel)]="newFriendEmail"
-                type="email"
-              />
+              <input matInput [(ngModel)]="newFriendEmail" type="email" />
             </mat-form-field>
             <button
               mat-raised-button
               color="primary"
               (click)="sendFriendRequest()"
-              [disabled]="!newFriendEmail"
+              [disabled]="!newFriendEmail || isLoading"
             >
               Enviar Solicitud
             </button>
