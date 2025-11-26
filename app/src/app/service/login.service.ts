@@ -16,10 +16,22 @@ export class LoginService {
   // endPoint = 'https://pkbvmxnl-3000.use2.devtunnels.ms/auth';
   endPoint = '/auth';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    // Load token from localStorage on service initialization
+    this.loadTokenFromStorage();
+  }
+
+  private loadTokenFromStorage() {
+    const savedToken = localStorage.getItem('authToken');
+    if (savedToken) {
+      this.token = savedToken;
+    }
+  }
 
   setToken(token: string) {
     this.token = token;
+    // Save token to localStorage
+    localStorage.setItem('authToken', token);
   }
 
   getTokenValidation() {
@@ -49,6 +61,9 @@ export class LoginService {
 
   logout() {
     this.token = '';
+    // Clear token from localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
   }
 }

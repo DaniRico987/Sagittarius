@@ -14,6 +14,18 @@ export class UserService {
   }
 
   getUserName(): UserChat | null {
+    // First, try to get user from localStorage
+    const cachedUser = localStorage.getItem('currentUser');
+    if (cachedUser) {
+      try {
+        return JSON.parse(cachedUser);
+      } catch (error) {
+        console.error('Error parsing cached user', error);
+        localStorage.removeItem('currentUser');
+      }
+    }
+
+    // If not in cache, decode from token
     const token: string | null = this.loginService.getTokenValidation()
       ? this.loginService.token
       : null;
@@ -35,6 +47,11 @@ export class UserService {
         id: decodedPayload.sub,
         name: decodedPayload.name,
       };
+
+      // Save user to localStorage for future use
+      if (user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+      }
 
       return user ?? null; // Devuelve `null` si `name` no existe
     } catch (error) {
