@@ -2,7 +2,10 @@
   <!-- Sidebar -->
   <div class="sidebar" [class.hidden-mobile]="!showSidebar">
     <div class="sidebar-header">
-      <h3>Chats</h3>
+      <div class="logo-title">
+        <img src="assets/logo-removebg-preview.png" alt="Logo" class="sidebar-logo" />
+        <h3>Chats</h3>
+      </div>
       <div class="actions">
         <button mat-icon-button (click)="toggleFriends()" matTooltip="Amigos">
           <mat-icon>people</mat-icon>
@@ -73,8 +76,16 @@
             selectedConversation.isGroup ? "group" : "person"
           }}</mat-icon>
           {{ getConversationName(selectedConversation) }}
+          <span *ngIf="isOtherUserTyping" class="typing-indicator">
+            <small>escribiendo...</small>
+          </span>
         </mat-card-title>
       </mat-card-header>
+
+      <div class="connection-warning" *ngIf="!isConnected">
+        <mat-icon>wifi_off</mat-icon>
+        <span>Sin conexión al servidor</span>
+      </div>
 
       <mat-card-content class="chat-content">
         <div #chatContainer class="messages-container">
@@ -119,6 +130,48 @@
                 >
               </span>
             </span>
+
+            <!-- Reaction button -->
+            <button
+              mat-icon-button
+              class="reaction-button"
+              (click)="toggleEmojiPicker(message._id!)"
+              matTooltip="Reaccionar"
+            >
+              <mat-icon>add_reaction</mat-icon>
+            </button>
+
+            <!-- Emoji picker -->
+            <div class="emoji-picker" *ngIf="showEmojiPicker[message._id!]">
+              <button
+                *ngFor="let emoji of availableEmojis"
+                class="emoji-option"
+                (click)="toggleReaction(message, emoji)"
+                [matTooltip]="emoji"
+              >
+                {{ emoji }}
+              </button>
+            </div>
+
+            <!-- Display reactions -->
+            <div
+              class="reactions-container"
+              *ngIf="message.reactions && message.reactions.length > 0"
+            >
+              <button
+                *ngFor="let emoji of availableEmojis"
+                class="reaction-badge"
+                [class.user-reacted]="hasUserReacted(message, emoji)"
+                [class.hidden]="getReactionCount(message, emoji) === 0"
+                (click)="toggleReaction(message, emoji)"
+                [matTooltip]="getReactionUsers(message, emoji)"
+              >
+                <span class="emoji">{{ emoji }}</span>
+                <span class="count">{{
+                  getReactionCount(message, emoji)
+                }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </mat-card-content>
@@ -129,13 +182,16 @@
         </div>
         <mat-form-field appearance="outline" class="full-width" *ngIf="canChat">
           <mat-label>Escribe un mensaje...</mat-label>
-          <input
+          <textarea
             matInput
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="4"
             [(ngModel)]="messageText"
-            (keyup.enter)="sendMessage()"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+            (input)="onTyping()"
             placeholder="Escribe un mensaje..."
-            autocomplete="off"
-          />
+          ></textarea>
           <button mat-icon-button matSuffix (click)="sendMessage()">
             <mat-icon>send</mat-icon>
           </button>

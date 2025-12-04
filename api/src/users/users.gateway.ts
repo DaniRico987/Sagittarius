@@ -33,4 +33,27 @@ export class UsersGateway {
       .to(`user_${friendId}`)
       .emit('friendRemoved', { friendId: userId });
   }
+
+  notifyFriendRequestSent(fromUserId: string, toUserId: string, fromUser: any) {
+    this.server.to(`user_${toUserId}`).emit('friendRequestReceived', {
+      requestId: fromUserId, // Using userId as requestId for simplicity or generate one
+      from: fromUser,
+      status: 'pending',
+    });
+  }
+
+  notifyFriendRequestAccepted(userId: string, friendId: string, friend: any) {
+    // Notify the user who sent the request that it was accepted
+    this.server.to(`user_${friendId}`).emit('friendRequestAccepted', {
+      friendId: userId,
+      friend: friend, // The user who accepted
+    });
+  }
+
+  notifyFriendRequestRejected(userId: string, friendId: string) {
+    // Notify the user who sent the request that it was rejected
+    this.server.to(`user_${friendId}`).emit('friendRequestRejected', {
+      friendId: userId,
+    });
+  }
 }

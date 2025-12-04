@@ -98,6 +98,14 @@ export class UsersService {
 
     friend.friendRequests.push({ from: userId as any, status: 'pending' });
     await friend.save();
+
+    // Notify the friend
+    this.usersGateway.notifyFriendRequestSent(userId, friendId, {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    });
   }
 
   // Enviar solicitud de amistad por email
@@ -140,6 +148,14 @@ export class UsersService {
 
     await user.save();
     await friend.save();
+
+    // Notify the sender that request was accepted
+    this.usersGateway.notifyFriendRequestAccepted(userId, friendId, {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    });
   }
 
   // Rechazar solicitud de amistad
@@ -160,6 +176,9 @@ export class UsersService {
 
     user.friendRequests[requestIndex].status = 'rejected';
     await user.save();
+
+    // Notify the sender that request was rejected
+    this.usersGateway.notifyFriendRequestRejected(userId, friendId);
   }
 
   // Obtener amigos

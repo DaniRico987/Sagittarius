@@ -20,9 +20,21 @@
     background-color: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
 
-    h3 {
-      margin: 0;
-      color: var(--text-primary);
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .sidebar-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+      }
+
+      h3 {
+        margin: 0;
+        color: var(--text-primary);
+      }
     }
 
     button {
@@ -85,6 +97,10 @@
   box-shadow: none;
   background-color: transparent !important;
 
+  mat-icon {
+    margin-bottom: -5px;
+  }
+
   .chat-header {
     padding: 10px 20px;
     background-color: var(--bg-card);
@@ -93,6 +109,36 @@
     display: flex;
     align-items: center;
     gap: 10px;
+
+    .typing-indicator {
+      margin-left: 10px;
+      color: var(--primary-color);
+      font-style: italic;
+      animation: pulse 1.5s ease-in-out infinite;
+
+      small {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .connection-warning {
+    background-color: #f44336;
+    color: white;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
   }
 
   .chat-content {
@@ -129,6 +175,12 @@
 
     mat-form-field {
       width: 100%;
+
+      textarea {
+        resize: none;
+        transition: height 0.2s ease;
+        overflow-y: auto;
+      }
     }
   }
 }
@@ -200,6 +252,129 @@
       }
     }
   }
+
+  .reaction-button {
+    position: absolute;
+    bottom: 2px;
+    left: -8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background-color: var(--bg-card);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: var(--text-secondary);
+      line-height: 12px;
+    }
+  }
+
+  &:hover .reaction-button {
+    opacity: 1;
+  }
+
+  .emoji-picker {
+    position: absolute;
+    bottom: 32px;
+    background-color: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    z-index: 100;
+    animation: slideUp 0.2s ease;
+
+    .emoji-option {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+
+      &:hover {
+        background-color: rgba(124, 77, 255, 0.15);
+        transform: scale(1.15);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  &.received .emoji-picker {
+    left: 20px;
+  }
+
+  &.sent .emoji-picker {
+    right: 20px;
+    left: auto;
+  }
+
+  .reactions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+
+    .reaction-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background-color: rgba(124, 77, 255, 0.1);
+      border: 1px solid rgba(124, 77, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+
+      &.hidden {
+        display: none;
+      }
+
+      &.user-reacted {
+        background-color: rgba(124, 77, 255, 0.2);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.1);
+      }
+
+      &:hover {
+        transform: scale(1.05);
+        background-color: rgba(124, 77, 255, 0.25);
+      }
+
+      .emoji {
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .count {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+  }
 }
 
 .empty-state {
@@ -255,4 +430,38 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }

@@ -72,7 +72,7 @@ export class MessagesGateway {
           messageDto.sender_id,
           messageDto.receiver_id,
         );
-        this.server.to(room).emit('privateMessage', savedMessage); // Keeping 'privateMessage' for legacy
+        this.server.to(room).emit('privateMessage', savedMessage);
       }
     } catch (error) {
       this.logger.error('🚨 Error al manejar el mensaje', error);
@@ -87,7 +87,6 @@ export class MessagesGateway {
   ) {
     const room = this.getRoomId(data.userId, data.receiverId);
     client.join(room);
-    // ... load messages logic if needed
   }
 
   private getRoomId(userId: string, receiverId: string): string {
@@ -126,7 +125,7 @@ export class MessagesGateway {
       // Notify senders about read status
       for (const message of messages) {
         this.server.emit('statusUpdated', {
-          messageId: (message as any)._id,
+          messageId: (message as any)._id.toString(),
           status: 'read',
         });
       }
@@ -136,6 +135,60 @@ export class MessagesGateway {
       );
     } catch (error) {
       this.logger.error('Error al marcar mensajes como leídos', error);
+    }
+  }
+
+  @SubscribeMessage('userTyping')
+  handleUserTyping(
+    @MessageBody()
+    data: {
+      conversationId: string;
+      userId: string;
+      userName: string;
+      isTyping: boolean;
+    },
+  ) {
+    // Broadcast typing status to all users in the conversation
+    this.server.to(data.conversationId).emit('userTyping', {
+      userId: data.userId,
+      userName: data.userName,
+      isTyping: data.isTyping,
+    });
+  }
+
+  @SubscribeMessage('toggleReaction')
+  async handleToggleReaction(
+    @MessageBody()
+    data: {
+      messageId: string;
+      userId: string;
+      userName: string;
+      emoji: string;
+    },
+  ) {
+    try {
+      const updatedMessage = await this.messagesService.toggleReaction(
+        data.messageId,
+        data.userId,
+        data.userName,
+        data.emoji,
+      );
+
+      // Broadcast reaction update to all users in the conversation
+      if (updatedMessage.conversation_id) {
+        this.server
+          .to(updatedMessage.conversation_id.toString())
+          .emit('reactionUpdated', {
+            messageId: data.messageId,
+            reactions: updatedMessage.reactions,
+          });
+      }
+
+      this.logger.log(
+        `Reaction ${data.emoji} toggled on message ${data.messageId}`,
+      );
+    } catch (error) {
+      this.logger.error('Error toggling reaction', error);
     }
   }
 }

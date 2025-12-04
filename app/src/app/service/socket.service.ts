@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { LoginService } from './login.service';
 import { Message } from '../interface/message.interface';
 
@@ -10,6 +10,7 @@ import { Message } from '../interface/message.interface';
 export class SocketService {
   public socket!: Socket;
   private endPoint: string = '/';
+  public connected$ = new BehaviorSubject<boolean>(false);
 
   constructor(private loginService: LoginService) {}
 
@@ -33,10 +34,17 @@ export class SocketService {
 
     this.socket.on('connect', () => {
       console.log('🔌 Conectado al servidor de sockets');
+      this.connected$.next(true);
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('🔌 Desconectado del servidor de sockets');
+      this.connected$.next(false);
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('❌ Error de conexión al socket:', error);
+      this.connected$.next(false);
     });
   }
 
@@ -82,6 +90,7 @@ export class SocketService {
       message.receiver_id = receiverId;
     }
 
+    console.log('📤 Enviando mensaje:', message);
     this.socket.emit('sendMessage', message);
   }
 

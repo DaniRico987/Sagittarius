@@ -58,6 +58,26 @@ export class FriendsComponent implements OnInit {
         this.loadFriends();
         this.loadFriendRequests();
       });
+
+      this.socketService.onEvent('friendRequestReceived').subscribe(() => {
+        this.loadFriendRequests();
+        this.notificationService.info(
+          '¡Has recibido una solicitud de amistad!'
+        );
+      });
+
+      this.socketService.onEvent('friendRequestAccepted').subscribe(() => {
+        this.loadFriends();
+        this.loadFriendRequests();
+        this.notificationService.success(
+          '¡Tu solicitud de amistad fue aceptada!'
+        );
+      });
+
+      this.socketService.onEvent('friendRequestRejected').subscribe(() => {
+        this.loadFriendRequests();
+        this.notificationService.info('Tu solicitud de amistad fue rechazada');
+      });
     }
   }
 

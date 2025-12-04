@@ -41,6 +41,16 @@ export class ChatComponent implements OnInit, OnDestroy {
   showSidebar: boolean = true;
   canChat: boolean = true;
   myFriendIds: string[] = [];
+  isConnected: boolean = false;
+
+  // Typing indicator
+  isOtherUserTyping: boolean = false;
+  typingUserName: string = '';
+  private typingTimeout: any;
+
+  // Reactions
+  showEmojiPicker: { [messageId: string]: boolean } = {};
+  availableEmojis: string[] = ['👍', '❤️', '😂', '😮', '😢'];
 
   constructor(
     private socketService: SocketService,
@@ -59,6 +69,16 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.listenForMessages();
     this.checkScreenSize();
     this.loadFriendsList();
+
+    // Listen for connection status
+    this.socketService.connected$.subscribe((connected) => {
+      this.isConnected = connected;
+      if (!connected) {
+        console.warn('⚠️ Desconectado del servidor de chat');
+      } else {
+        console.log('✅ Conectado al chat');
+      }
+    });
 
     // Listen for query params to handle friend selection
     this.route.queryParams.subscribe((params) => {
@@ -140,13 +160,14 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.selectedConversation = conversation;
     this.showFriends = false;
     this.messages = [];
+    this.isOtherUserTyping = false; // Reset typing indicator
 
     this.checkCanChat(conversation);
 
     this.socketService.joinChat(conversation._id);
 
     // Mark messages as read when opening conversation
-    (this.socketService as any).socket.emit('messagesRead', {
+    this.socketService.socket.emit('messagesRead', {
       conversationId: conversation._id,
       userId: this.user.id,
     });
@@ -154,7 +175,31 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.isMobile) {
       this.showSidebar = false;
     }
-    // The socket will emit 'loadMessages' which we listen to
+  }
+
+  onTyping() {
+    if (!this.selectedConversation) return;
+
+    // Emit typing event
+    this.socketService.socket.emit('userTyping', {
+      conversationId: this.selectedConversation._id,
+      userId: this.user.id,
+      userName: this.user.name,
+      isTyping: true,
+    });
+
+    // Debounce: stop typing after 1 second of inactivity
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+    this.typingTimeout = setTimeout(() => {
+      this.socketService.socket.emit('userTyping', {
+        conversationId: this.selectedConversation._id,
+        userId: this.user.id,
+        userName: this.user.name,
+        isTyping: false,
+      });
+    }, 1000);
   }
 
   checkCanChat(conversation: any) {
@@ -224,9 +269,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         .filter((id) => id) as string[];
 
       if (messageIds.length > 0) {
-        (this.socketService as any).socket.emit('messageDelivered', {
-          messageIds,
-        });
+        this.socketService.socket.emit('messageDelivered', { messageIds });
       }
     });
 
@@ -240,7 +283,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
         // Mark as delivered immediately if conversation is open
         if (message.sender_id !== this.user.id && message._id) {
-          (this.socketService as any).socket.emit('messageDelivered', {
+          this.socketService.socket.emit('messageDelivered', {
             messageIds: [message._id],
           });
         }
@@ -278,6 +321,24 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Listen for typing indicator
+    this.socketService.onEvent('userTyping').subscribe((data: any) => {
+      if (data.userId !== this.user.id) {
+        this.isOtherUserTyping = data.isTyping;
+        this.typingUserName = data.userName;
+
+        // Auto-hide typing indicator after 3 seconds
+        if (this.typingTimeout) {
+          clearTimeout(this.typingTimeout);
+        }
+        if (data.isTyping) {
+          this.typingTimeout = setTimeout(() => {
+            this.isOtherUserTyping = false;
+          }, 3000);
+        }
+      }
+    });
+
     // Listen for friend removed event
     this.socketService.onEvent('friendRemoved').subscribe((data: any) => {
       this.loadFriendsList();
@@ -293,6 +354,20 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Listen for friend request accepted to refresh friends list
+    this.socketService.onEvent('friendRequestAccepted').subscribe(() => {
+      this.loadFriendsList();
+      this.checkScreenSize(); // Re-evaluate if we can chat
+    });
+
+    // Listen for reaction updates
+    this.socketService.onEvent('reactionUpdated').subscribe((data: any) => {
+      const message = this.messages.find((m) => m._id === data.messageId);
+      if (message) {
+        message.reactions = data.reactions;
+      }
+    });
+
     // Legacy support if needed
     this.socketService
       .onEvent<Message>('privateMessage')
@@ -303,6 +378,13 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   sendMessage() {
     if (!this.messageText.trim() || !this.selectedConversation) return;
+
+    console.log('💬 Intentando enviar mensaje:', this.messageText);
+    if (!this.isConnected) {
+      console.error('❌ No se puede enviar: Desconectado');
+      alert('No hay conexión con el servidor de chat');
+      return;
+    }
 
     this.socketService.sendMessage(
       this.user.id,
@@ -386,6 +468,51 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  toggleEmojiPicker(messageId: string) {
+    // Close all other pickers
+    Object.keys(this.showEmojiPicker).forEach((key) => {
+      if (key !== messageId) {
+        this.showEmojiPicker[key] = false;
+      }
+    });
+    // Toggle current picker
+    this.showEmojiPicker[messageId] = !this.showEmojiPicker[messageId];
+  }
+
+  toggleReaction(message: Message, emoji: string) {
+    if (!message._id) return;
+
+    this.socketService.socket.emit('toggleReaction', {
+      messageId: message._id,
+      userId: this.user.id,
+      userName: this.user.name,
+      emoji: emoji,
+    });
+
+    // Close emoji picker after selection
+    this.showEmojiPicker[message._id] = false;
+  }
+
+  getReactionCount(message: Message, emoji: string): number {
+    if (!message.reactions) return 0;
+    return message.reactions.filter((r) => r.emoji === emoji).length;
+  }
+
+  hasUserReacted(message: Message, emoji: string): boolean {
+    if (!message.reactions) return false;
+    return message.reactions.some(
+      (r) => r.emoji === emoji && r.userId === this.user.id
+    );
+  }
+
+  getReactionUsers(message: Message, emoji: string): string {
+    if (!message.reactions) return '';
+    const users = message.reactions
+      .filter((r) => r.emoji === emoji)
+      .map((r) => r.userName);
+    return users.join(', ');
   }
 
   toggleTheme(): void {
