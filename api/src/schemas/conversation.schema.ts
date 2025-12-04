@@ -17,6 +17,9 @@ export class Conversation {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Message' })
   lastMessage?: string;
+
+  @Prop({ type: Map, of: Number, default: {} })
+  unreadCount: Map<string, number>; // userId -> count
 }
 
 export type ConversationDocument = Conversation & Document;

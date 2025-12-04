@@ -180,4 +180,49 @@ export class MessagesService {
 
     return await message.save();
   }
+
+  // Increment unread count for all participants except sender
+  async incrementUnreadCount(
+    conversationId: string,
+    senderId: string,
+  ): Promise<Conversation | null> {
+    const conversation = await this.conversationModel.findById(conversationId);
+    if (!conversation) return null;
+
+    const unreadCount = conversation.unreadCount || new Map();
+
+    // Increment count for all participants except sender
+    for (const participantId of conversation.participants) {
+      if (participantId.toString() !== senderId.toString()) {
+        const currentCount = unreadCount.get(participantId.toString()) || 0;
+        unreadCount.set(participantId.toString(), currentCount + 1);
+      }
+    }
+
+    const updated = await this.conversationModel.findByIdAndUpdate(
+      conversationId,
+      {
+        unreadCount: Object.fromEntries(unreadCount),
+      },
+      { new: true },
+    );
+
+    return updated;
+  }
+
+  // Clear unread count for a user in a conversation
+  async clearUnreadCount(
+    conversationId: string,
+    userId: string,
+  ): Promise<void> {
+    const conversation = await this.conversationModel.findById(conversationId);
+    if (!conversation) return;
+
+    const unreadCount = conversation.unreadCount || new Map();
+    unreadCount.set(userId, 0);
+
+    await this.conversationModel.findByIdAndUpdate(conversationId, {
+      unreadCount: Object.fromEntries(unreadCount),
+    });
+  }
 }

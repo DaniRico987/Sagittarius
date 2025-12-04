@@ -21,7 +21,7 @@ export class MessagesGateway {
   @SubscribeMessage('joinChat')
   async handleJoinChat(
     @ConnectedSocket() client: any,
-    @MessageBody() data: { conversationId: string },
+    @MessageBody() data: { conversationId: string; userId: string },
   ) {
     if (!data.conversationId) {
       this.logger.warn('❌ ID de conversación inválido');
@@ -30,6 +30,20 @@ export class MessagesGateway {
 
     client.join(data.conversationId);
     this.logger.log(`✅ Usuario unido a la sala ${data.conversationId}`);
+
+    // Clear unread count for this user
+    if (data.userId) {
+      await this.messagesService.clearUnreadCount(
+        data.conversationId,
+        data.userId,
+      );
+
+      // Notify the user that their unread count was cleared
+      this.server.to(data.userId).emit('unreadCountUpdated', {
+        conversationId: data.conversationId,
+        unreadCount: 0,
+      });
+    }
 
     try {
       const messages = await this.messagesService.getMessagesByConversation(
@@ -57,6 +71,31 @@ export class MessagesGateway {
       }
 
       const savedMessage = await this.messagesService.createMessage(messageDto);
+
+      // Increment unread count for all participants except sender
+      if (messageDto.conversation_id) {
+        const updatedConversation =
+          await this.messagesService.incrementUnreadCount(
+            messageDto.conversation_id,
+            messageDto.sender_id,
+          );
+
+        // Notify all participants about unread count update
+        if (updatedConversation) {
+          for (const participantId of updatedConversation.participants) {
+            if (participantId.toString() !== messageDto.sender_id.toString()) {
+              this.server
+                .to(participantId.toString())
+                .emit('unreadCountUpdated', {
+                  conversationId: messageDto.conversation_id,
+                  unreadCount:
+                    updatedConversation.unreadCount[participantId.toString()] ||
+                    0,
+                });
+            }
+          }
+        }
+      }
 
       // If conversation_id exists, emit to that room
       if (messageDto.conversation_id) {

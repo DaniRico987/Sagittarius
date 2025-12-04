@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Variables - Dark Mode (matching login)
 $primary-color: #bb86fc;
 $secondary-color: #03dac6;
@@ -13,7 +15,7 @@ $input-bg: #2c2c2c;
   align-items: center;
   min-height: 100vh;
   background: var(--bg-gradient);
-  padding: 20px;
+  padding: 0 20px;
   overflow: hidden;
   position: relative;
 
@@ -221,7 +223,7 @@ $input-bg: #2c2c2c;
       border-radius: 8px;
       text-transform: uppercase;
       transition: all 0.3s ease;
-      background: linear-gradient(135deg, var(--primary-color), lighten($primary-color, 10%));
+      background: linear-gradient(135deg, var(--primary-color), color.adjust($primary-color, $lightness: 10%));
       color: #fff;
 
       &:hover:not(:disabled) {
@@ -250,7 +252,7 @@ $input-bg: #2c2c2c;
 
         &:hover {
           text-decoration: underline;
-          color: lighten($primary-color, 10%);
+          color: color.adjust($primary-color, $lightness: 10%);
         }
       }
     }

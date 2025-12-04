@@ -3,7 +3,11 @@
   <div class="sidebar" [class.hidden-mobile]="!showSidebar">
     <div class="sidebar-header">
       <div class="logo-title">
-        <img src="assets/logo-removebg-preview.png" alt="Logo" class="sidebar-logo" />
+        <img
+          src="assets/logo-removebg-preview.png"
+          alt="Logo"
+          class="sidebar-logo"
+        />
         <h3>Chats</h3>
       </div>
       <div class="actions">
@@ -29,7 +33,12 @@
         <mat-icon matListItemIcon>{{
           conv.isGroup ? "group" : "person"
         }}</mat-icon>
-        <div matListItemTitle>{{ getConversationName(conv) }}</div>
+        <div matListItemTitle>
+          {{ getConversationName(conv) }}
+          <span class="unread-badge" *ngIf="getUnreadCount(conv) > 0">
+            {{ getUnreadCount(conv) }}
+          </span>
+        </div>
         <div matListItemLine class="last-msg" *ngIf="conv.lastMessage">
           {{ conv.lastMessage.content | slice : 0 : 20 }}...
         </div>

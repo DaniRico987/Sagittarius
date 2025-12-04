@@ -49,8 +49,8 @@ export class SocketService {
   }
 
   // Unirse a una sala (privada o grupo)
-  joinChat(conversationId: string) {
-    this.socket.emit('joinChat', { conversationId });
+  joinChat(conversationId: string, userId?: string) {
+    this.socket.emit('joinChat', { conversationId, userId });
   }
 
   // Unirse a la sala personal del usuario

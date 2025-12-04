@@ -164,7 +164,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.checkCanChat(conversation);
 
-    this.socketService.joinChat(conversation._id);
+    this.socketService.joinChat(conversation._id, this.user.id);
 
     // Mark messages as read when opening conversation
     this.socketService.socket.emit('messagesRead', {
@@ -368,6 +368,19 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Listen for unread count updates
+    this.socketService.onEvent('unreadCountUpdated').subscribe((data: any) => {
+      const conversation = this.conversations.find(
+        (c) => c._id === data.conversationId
+      );
+      if (conversation) {
+        if (!conversation.unreadCount) {
+          conversation.unreadCount = {};
+        }
+        conversation.unreadCount[this.user.id] = data.unreadCount;
+      }
+    });
+
     // Legacy support if needed
     this.socketService
       .onEvent<Message>('privateMessage')
@@ -443,6 +456,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
 
     return otherParticipant?.name || 'Chat';
+  }
+
+  getUnreadCount(conversation: any): number {
+    if (!conversation.unreadCount) return 0;
+    return conversation.unreadCount[this.user.id] || 0;
   }
 
   ngOnDestroy() {

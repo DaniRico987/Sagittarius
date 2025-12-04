@@ -58,6 +58,21 @@
         background-color: rgba(124, 77, 255, 0.15);
         border-left: 3px solid var(--primary-color);
       }
+
+      .unread-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+        min-width: 20px;
+        height: 20px;
+      }
     }
   }
 
@@ -465,3 +480,17 @@
     opacity: 0.5;
   }
 }
+      .unread-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+        min-width: 20px;
+        height: 20px;
+      }
